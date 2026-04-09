@@ -1,0 +1,102 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --paper: #f7f2ea;
+  --ink: #171512;
+  --muted: #6a655d;
+  --accent: #0c7c59;
+  --accent-strong: #0b5f46;
+  --accent-soft: #e2f3ed;
+  --card: #fff9f0;
+  --stroke: #eadfce;
+  --shadow: 0 28px 60px rgba(21, 18, 15, 0.08);
+}
+
+body {
+  color: var(--ink);
+  background: var(--paper);
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+}
+
+.app-shell {
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.app-shell::before,
+.app-shell::after {
+  content: '';
+  position: absolute;
+  width: 520px;
+  height: 520px;
+  border-radius: 999px;
+  filter: blur(80px);
+  opacity: 0.45;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.app-shell::before {
+  top: -140px;
+  left: -80px;
+  background: radial-gradient(circle, #d7f2e7 0%, rgba(215, 242, 231, 0) 70%);
+}
+
+.app-shell::after {
+  bottom: -180px;
+  right: -120px;
+  background: radial-gradient(circle, #f2e2c7 0%, rgba(242, 226, 199, 0) 70%);
+}
+
+main {
+  position: relative;
+  z-index: 1;
+}
+
+.font-display {
+  font-family: var(--font-display), Georgia, serif;
+  letter-spacing: -0.02em;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--stroke);
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+}
+
+.link {
+  color: var(--ink);
+  transition: color 0.2s ease;
+}
+
+.link:hover {
+  color: var(--accent-strong);
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #efe6d8;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #b7aa95;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #8f846f;
+}

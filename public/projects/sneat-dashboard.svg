@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800">
+  <defs>
+    <linearGradient id="g3" x1="0" x2="1">
+      <stop offset="0%" stop-color="#c084fc"/>
+      <stop offset="100%" stop-color="#60a5fa"/>
+    </linearGradient>
+  </defs>
+  <rect width="100%" height="100%" fill="#0f172a"/>
+  <rect x="40" y="40" width="1120" height="720" rx="20" fill="url(#g3)" opacity="0.12"/>
+  <g fill="#f8fafc" font-family="Inter, Arial, sans-serif">
+    <text x="80" y="160" font-size="48" font-weight="700">Sneat Dashboard</text>
+    <text x="80" y="220" font-size="20" fill="#cbd5e1">Yönetici paneli ve kullanıcı profili arayüzü</text>
+    <rect x="120" y="300" width="880" height="320" rx="12" fill="#0f172a" opacity="0.6"/>
+    <text x="160" y="380" font-size="18">• Kullanıcı yönetimi</text>
+    <text x="160" y="420" font-size="18">• Analitik paneller</text>
+    <text x="160" y="460" font-size="18">• Profil düzenleme</text>
+  </g>
+</svg>
