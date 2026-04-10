@@ -1,4 +1,4 @@
-import { writeFile, mkdir } from 'fs/promises'
+import { writeFile, mkdir, unlink } from 'fs/promises'
 import { join } from 'path'
 import { existsSync } from 'fs'
 
@@ -38,5 +38,39 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('Upload error:', error)
     return Response.json({ error: 'Upload failed' }, { status: 500 })
+  }
+}
+
+export async function DELETE(request: Request) {
+  try {
+    const { imagePath } = await request.json()
+
+    if (typeof imagePath !== 'string' || !imagePath.trim()) {
+      return Response.json({ error: 'Invalid image path' }, { status: 400 })
+    }
+
+    const normalizedPath = imagePath.trim().replace(/\\/g, '/')
+
+    if (!normalizedPath.startsWith('/gallery/')) {
+      return Response.json({ error: 'Invalid image path' }, { status: 400 })
+    }
+
+    const safeRelativePath = normalizedPath.replace(/^\/gallery\//, '')
+
+    if (safeRelativePath.includes('..')) {
+      return Response.json({ error: 'Invalid image path' }, { status: 400 })
+    }
+
+    const filePath = join(process.cwd(), 'public', 'gallery', safeRelativePath)
+
+    if (!existsSync(filePath)) {
+      return Response.json({ success: true, removed: false })
+    }
+
+    await unlink(filePath)
+    return Response.json({ success: true, removed: true })
+  } catch (error) {
+    console.error('Delete image error:', error)
+    return Response.json({ error: 'Delete failed' }, { status: 500 })
   }
 }

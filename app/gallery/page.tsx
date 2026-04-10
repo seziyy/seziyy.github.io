@@ -89,16 +89,30 @@ const getFileTitle = (fileName: string) => {
 }
 
 const buildFolderGalleryItems = (
-  folder: 'drawings' | 'notes' | 'moments',
+  folder: 'drawings' | 'designs' | 'notes' | 'moments',
   fileEntries: FolderFileEntry[],
   title: string,
 ): GalleryItem[] => {
-  const baseId = folder === 'drawings' ? 2000 : folder === 'notes' ? 2500 : 3000
+  const baseId =
+    folder === 'drawings'
+      ? 2000
+      : folder === 'designs'
+        ? 2250
+        : folder === 'notes'
+          ? 2500
+          : 3000
 
   return fileEntries.map((fileEntry, index) => ({
     id: baseId + index,
-    title: folder === 'notes' ? getFileTitle(fileEntry.name) || title : title,
-    category: folder === 'drawings' ? 'Drawings' : folder === 'notes' ? 'Notes' : 'Moments',
+    title: folder === 'moments' ? title : getFileTitle(fileEntry.name) || title,
+    category:
+      folder === 'drawings'
+        ? 'Drawings'
+        : folder === 'designs'
+          ? 'Designs'
+          : folder === 'notes'
+            ? 'Notes'
+            : 'Moments',
     image: `/gallery/${folder}/${fileEntry.name}`,
     hash: fileEntry.hash,
   }))
@@ -229,7 +243,7 @@ export default function GalleryPage() {
   }, [])
 
   useEffect(() => {
-    const loadFolder = async (folder: 'drawings' | 'notes' | 'moments', title: string) => {
+    const loadFolder = async (folder: 'drawings' | 'designs' | 'notes' | 'moments', title: string) => {
       try {
         const response = await fetch(`/api/gallery/${folder}`)
         if (!response.ok) return
@@ -246,6 +260,7 @@ export default function GalleryPage() {
     }
 
     void loadFolder('drawings', 'Drawings')
+    void loadFolder('designs', 'Designs')
     void loadFolder('notes', 'Notes')
     void loadFolder('moments', 'memories last forever')
   }, [])

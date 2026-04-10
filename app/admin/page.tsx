@@ -42,6 +42,7 @@ type GalleryItem = {
 
 type TabKey = 'projects' | 'blog' | 'gallery'
 type GalleryCategory = 'drawings' | 'designs' | 'notes' | 'moments'
+type GalleryAllResponse = { files?: { path: string; name: string }[] }
 
 const initialProjects: PortfolioProject[] = initialProjectData
 
@@ -55,26 +56,27 @@ const initialBlogs: Blog[] = [
   },
 ]
 
-const initialGallery: GalleryItem[] = [
-  {
-    id: 1,
-    title: 'Kriptooloji Nedir?',
-    category: 'Designs',
-    image: '/gallery/designs/kripto.png',
-  },
-  {
-    id: 2,
-    title: 'Untitled Design',
-    category: 'Designs',
-    image: '/gallery/designs/Untitled.png',
-  },
-  {
-    id: 3,
-    title: 'Untitled Design 2',
-    category: 'Designs',
-    image: '/gallery/designs/Untitled (6).png',
-  },
-]
+const galleryCategoryLabel: Record<GalleryCategory, string> = {
+  drawings: 'Drawings',
+  designs: 'Designs',
+  notes: 'Notes',
+  moments: 'Moments',
+}
+
+const getGalleryCategoryFromPath = (filePath: string) => {
+  const normalizedPath = filePath.toLowerCase()
+
+  if (normalizedPath.startsWith('drawings/')) return 'Drawings'
+  if (normalizedPath.startsWith('designs/')) return 'Designs'
+  if (normalizedPath.startsWith('notes/')) return 'Notes'
+  if (normalizedPath.startsWith('moments/')) return 'Moments'
+
+  return 'Gallery'
+}
+
+const toFileTitle = (fileName: string) => {
+  return fileName.replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' ').trim()
+}
 
 const toImageSrc = (src?: string) => {
   return src ? encodeURI(src) : ''
@@ -114,11 +116,7 @@ export default function AdminPage() {
   })
   const [blogEditingId, setBlogEditingId] = useState<number | null>(null)
 
-  const [gallery, setGallery] = useState<GalleryItem[]>(() => {
-    if (typeof window === 'undefined') return initialGallery
-    const stored = window.localStorage.getItem('admin-gallery')
-    return stored ? JSON.parse(stored) : initialGallery
-  })
+  const [gallery, setGallery] = useState<GalleryItem[]>([])
   const [galleryDraft, setGalleryDraft] = useState<Omit<GalleryItem, 'id'>>({
     title: '',
     category: '',
@@ -128,6 +126,9 @@ export default function AdminPage() {
 
   const [uploadingCategory, setUploadingCategory] = useState<GalleryCategory>('moments')
   const [uploading, setUploading] = useState(false)
+  const [galleryLoading, setGalleryLoading] = useState(false)
+  const [deletingImagePath, setDeletingImagePath] = useState('')
+  const [galleryError, setGalleryError] = useState('')
   const [uploadError, setUploadError] = useState('')
 
   useEffect(() => {
@@ -137,12 +138,40 @@ export default function AdminPage() {
     }
   }, [])
 
-  // Galeri verilerini localStorage'a kaydet
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem('admin-gallery', JSON.stringify(gallery))
+    if (!isAuthed) return
+
+    const loadGallery = async () => {
+      setGalleryLoading(true)
+      setGalleryError('')
+
+      try {
+        const response = await fetch('/api/gallery/all')
+
+        if (!response.ok) {
+          throw new Error('Galeri fotograflari yuklenemedi')
+        }
+
+        const payload = (await response.json()) as GalleryAllResponse
+        const files = payload.files ?? []
+
+        const nextGallery = files.map((entry, index) => ({
+          id: index + 1,
+          title: toFileTitle(entry.name) || `Photo ${index + 1}`,
+          category: getGalleryCategoryFromPath(entry.path),
+          image: `/gallery/${entry.path}`,
+        }))
+
+        setGallery(nextGallery)
+      } catch (error) {
+        setGalleryError(error instanceof Error ? error.message : 'Galeri yuklenemedi')
+      } finally {
+        setGalleryLoading(false)
+      }
     }
-  }, [gallery])
+
+    void loadGallery()
+  }, [isAuthed])
 
   const stats = useMemo(() => {
     return [
@@ -223,13 +252,24 @@ export default function AdminPage() {
 
       setGalleryDraft({
         title: files[0].name.split('.')[0],
-        category: {
-          drawings: 'Drawing',
-          designs: 'Designs',
-          notes: 'Notes',
-          moments: 'Moments',
-        }[uploadingCategory],
+        category: galleryCategoryLabel[uploadingCategory],
         image: data.path,
+      })
+
+      setGallery((prev) => {
+        const alreadyExists = prev.some((item) => item.image === data.path)
+        if (alreadyExists) return prev
+
+        const nextId = prev.length ? Math.max(...prev.map((item) => item.id)) + 1 : 1
+        return [
+          {
+            id: nextId,
+            title: files[0].name.split('.')[0],
+            category: galleryCategoryLabel[uploadingCategory],
+            image: data.path,
+          },
+          ...prev,
+        ]
       })
     } catch (error) {
       setUploadError(error instanceof Error ? error.message : 'Upload failed')
@@ -306,6 +346,9 @@ export default function AdminPage() {
 
   const upsertGallery = () => {
     if (!galleryDraft.title.trim()) return
+    if (!galleryDraft.image.trim()) return
+
+    setGalleryError('')
     if (galleryEditingId) {
       setGallery((prev) =>
         prev.map((item) =>
@@ -317,6 +360,36 @@ export default function AdminPage() {
       setGallery((prev) => [...prev, { id: nextId, ...galleryDraft }])
     }
     resetGalleryDraft()
+  }
+
+  const deleteGalleryImage = async (item: GalleryItem) => {
+    setDeletingImagePath(item.image)
+    setGalleryError('')
+
+    try {
+      const response = await fetch('/api/upload', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ imagePath: item.image }),
+      })
+
+      const data = await response.json()
+      if (!response.ok) {
+        throw new Error(data.error || 'Fotograf silinemedi')
+      }
+
+      setGallery((prev) => prev.filter((entry) => entry.id !== item.id))
+
+      if (galleryEditingId === item.id) {
+        resetGalleryDraft()
+      }
+    } catch (error) {
+      setGalleryError(error instanceof Error ? error.message : 'Fotograf silinemedi')
+    } finally {
+      setDeletingImagePath('')
+    }
   }
 
   if (!isAuthed) {
@@ -715,6 +788,8 @@ export default function AdminPage() {
               <div>
                 <h2 className="text-xl font-semibold">Fotograf yukle</h2>
                 <div className="mt-4 space-y-3">
+                  {galleryLoading && <p className="text-sm text-[color:var(--muted)]">Galeri yukleniyor...</p>}
+                  {galleryError && <p className="text-sm text-red-600">{galleryError}</p>}
                   <div>
                     <label className="block text-sm font-medium text-[color:var(--ink)] mb-2">Kategori sec</label>
                     <select
@@ -773,7 +848,7 @@ export default function AdminPage() {
                   {!galleryDraft.image && (
                     <>
                       <p className="text-xs text-[color:var(--muted)]">
-                        Or use an existing image from public/gallery/drawings, public/gallery/designs, public/gallery/notes or public/gallery/moments.
+                        Alternatively, use an existing image path from public/gallery categories.
                       </p>
                       <input
                         value={galleryDraft.image}
@@ -841,7 +916,8 @@ export default function AdminPage() {
                       </button>
                       <button
                         type="button"
-                        onClick={() => setGallery((prev) => prev.filter((entry) => entry.id !== item.id))}
+                        onClick={() => void deleteGalleryImage(item)}
+                        disabled={deletingImagePath === item.image}
                         className="p-2 rounded-lg border border-[color:var(--stroke)] text-red-600"
                       >
                         <Trash2 size={16} />
@@ -850,6 +926,9 @@ export default function AdminPage() {
                   </div>
                 </div>
               ))}
+              {!galleryLoading && gallery.length === 0 && (
+                <div className="card p-5 text-sm text-[color:var(--muted)]">Galeride henuz fotograf yok.</div>
+              )}
             </div>
           </section>
         )}
