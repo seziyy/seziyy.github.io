@@ -71,6 +71,31 @@ GITHUB_USERNAME=your_username
 GITHUB_TOKEN=your_token
 ```
 
+### Spotify Now Playing'i Canli Yapma
+Spotify kartinin calismasi icin sadece client id/secret yetmez, refresh token da gerekli.
+
+Refresh token nedir: Spotify'dan yeni access token almak icin kullanilan uzun omurlu bir anahtardir. Access token kisa sureli olur; refresh token ise onu yenilemek icin saklanir.
+
+1. [Spotify Dashboard](https://developer.spotify.com/dashboard) uzerinde bir app olusturun.
+2. Redirect URI olarak su adresi ekleyin:
+	- `http://127.0.0.1:3000/callback`
+3. Bu authorize URL'sini tarayicida acin (client id'yi degistirin):
+	- `https://accounts.spotify.com/authorize?client_id=YOUR_CLIENT_ID&response_type=code&redirect_uri=http%3A%2F%2F127.0.0.1%3A3000%2Fcallback&scope=user-read-currently-playing%20user-read-playback-state`
+4. Login sonrasi adres cubugundaki `?code=...` degerini alin.
+5. Kodu refresh token'a cevirmek icin proje icindeki yardimci script'i calistirin:
+	- `node scripts/get-spotify-refresh-token.js`
+6. Script, sizden authorization code'u ister ve refresh token'i ekrana basar.
+7. `.env.local` dosyasina bu 3 degeri yazin:
+	- `SPOTIFY_CLIENT_ID`
+	- `SPOTIFY_CLIENT_SECRET`
+	- `SPOTIFY_REFRESH_TOKEN`
+8. Uygulamayi yeniden baslatin ve ana sayfada Spotify kartini kontrol edin.
+
+Not: Projede `next.config.js` icindeki `output: 'export'` ayari statik cikti uretir. Bu modda `app/api/*` route'lari production'da calismaz. Canli Spotify verisi icin iki secenek vardir:
+
+1. Siteyi Vercel gibi server-side route destekleyen bir ortama deploy etmek.
+2. GitHub Pages'te kalacaksaniz Spotify endpoint'ini ayri bir serverless backend'de barindirip frontend'den o URL'e istek atmak.
+
 ## 📁 Proje Yapısı
 
 ```
