@@ -1,17 +1,74 @@
 import { NextResponse } from 'next/server'
+import fs from 'node:fs'
+import path from 'node:path'
 
 const SPOTIFY_TOKEN_ENDPOINT = 'https://accounts.spotify.com/api/token'
 const SPOTIFY_NOW_PLAYING_ENDPOINT = 'https://api.spotify.com/v1/me/player/currently-playing'
 const SPOTIFY_RECENTLY_PLAYED_ENDPOINT = 'https://api.spotify.com/v1/me/player/recently-played?limit=1'
 
-const client_id = process.env.SPOTIFY_CLIENT_ID
-const client_secret = process.env.SPOTIFY_CLIENT_SECRET
-const refresh_token = process.env.SPOTIFY_REFRESH_TOKEN
-
-const basic = Buffer.from(`${client_id}:${client_secret}`).toString('base64')
-
 function hasPlaceholder(value?: string) {
   return !value || value.startsWith('your_')
+}
+
+function normalizeEnvValue(value?: string) {
+  if (!value) return undefined
+
+  const cleaned = value.trim().replace(/^['"]|['"]$/g, '')
+
+  if (!cleaned || hasPlaceholder(cleaned)) {
+    return undefined
+  }
+
+  return cleaned
+}
+
+function readLocalEnvFile() {
+  const envPath = path.join(process.cwd(), '.env.local')
+
+  if (!fs.existsSync(envPath)) {
+    return new Map<string, string>()
+  }
+
+  const fileContent = fs.readFileSync(envPath, 'utf8')
+  const envMap = new Map<string, string>()
+
+  for (const line of fileContent.split(/\r?\n/)) {
+    const trimmed = line.trim()
+
+    if (!trimmed || trimmed.startsWith('#')) {
+      continue
+    }
+
+    const separatorIndex = trimmed.indexOf('=')
+    if (separatorIndex <= 0) {
+      continue
+    }
+
+    const key = trimmed.slice(0, separatorIndex).trim()
+    const rawValue = trimmed.slice(separatorIndex + 1).trim()
+
+    if (!key || !rawValue) {
+      continue
+    }
+
+    envMap.set(key, rawValue)
+  }
+
+  return envMap
+}
+
+function getSpotifyCredentials() {
+  const localEnv = readLocalEnvFile()
+
+  const clientId = normalizeEnvValue(process.env.SPOTIFY_CLIENT_ID ?? localEnv.get('SPOTIFY_CLIENT_ID'))
+  const clientSecret = normalizeEnvValue(process.env.SPOTIFY_CLIENT_SECRET ?? localEnv.get('SPOTIFY_CLIENT_SECRET'))
+  const refreshToken = normalizeEnvValue(process.env.SPOTIFY_REFRESH_TOKEN ?? localEnv.get('SPOTIFY_REFRESH_TOKEN'))
+
+  return {
+    clientId,
+    clientSecret,
+    refreshToken,
+  }
 }
 
 function noStoreHeaders() {
@@ -22,7 +79,9 @@ function noStoreHeaders() {
   }
 }
 
-async function getAccessToken() {
+async function getAccessToken(credentials: { clientId: string; clientSecret: string; refreshToken: string }) {
+  const basic = Buffer.from(`${credentials.clientId}:${credentials.clientSecret}`).toString('base64')
+
   const response = await fetch(SPOTIFY_TOKEN_ENDPOINT, {
     method: 'POST',
     cache: 'no-store',
@@ -32,7 +91,7 @@ async function getAccessToken() {
     },
     body: new URLSearchParams({
       grant_type: 'refresh_token',
-      refresh_token: refresh_token!,
+      refresh_token: credentials.refreshToken,
     }),
   })
 
@@ -124,7 +183,9 @@ async function getTrackResponse(accessToken: string) {
 
 export async function GET() {
   try {
-    if (hasPlaceholder(client_id) || hasPlaceholder(client_secret) || hasPlaceholder(refresh_token)) {
+    const credentials = getSpotifyCredentials()
+
+    if (!credentials.clientId || !credentials.clientSecret || !credentials.refreshToken) {
       return NextResponse.json({
         isPlaying: false,
         title: 'Spotify is not configured',
@@ -132,7 +193,11 @@ export async function GET() {
       }, { headers: noStoreHeaders() })
     }
 
-    const accessToken = await getAccessToken()
+    const accessToken = await getAccessToken({
+      clientId: credentials.clientId,
+      clientSecret: credentials.clientSecret,
+      refreshToken: credentials.refreshToken,
+    })
     const trackResponse = await getTrackResponse(accessToken)
 
     if (!trackResponse) {
@@ -143,7 +208,11 @@ export async function GET() {
       const response = await getNowPlaying(accessToken)
 
       if (response.status === 401) {
-        const retryAccessToken = await getAccessToken()
+        const retryAccessToken = await getAccessToken({
+          clientId: credentials.clientId,
+          clientSecret: credentials.clientSecret,
+          refreshToken: credentials.refreshToken,
+        })
         const retryTrackResponse = await getTrackResponse(retryAccessToken)
 
         if (retryTrackResponse) {
