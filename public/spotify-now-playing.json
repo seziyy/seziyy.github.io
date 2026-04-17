@@ -1,7 +1,11 @@
 {
   "isPlaying": false,
-  "title": "Spotify sync pending",
-  "artist": "GitHub Action will update this file.",
-  "source": "seed",
-  "updatedAt": "1970-01-01T00:00:00.000Z"
+  "title": "Die For Me (feat. Future & Halsey)",
+  "artist": "Post Malone, Halsey, Future",
+  "album": "Hollywood's Bleeding",
+  "albumImageUrl": "https://i.scdn.co/image/ab67616d0000b2739478c87599550dd73bfa7e02",
+  "songUrl": "https://open.spotify.com/track/2C6WXnmZ66tHhHlnvwePiK",
+  "trackId": "2C6WXnmZ66tHhHlnvwePiK",
+  "source": "recently_played",
+  "updatedAt": "2026-04-17T22:43:59.452Z"
 }
