@@ -100,7 +100,7 @@ Bu durumda frontend tarafinda `NEXT_PUBLIC_SPOTIFY_API_URL=https://...` tanimlay
 
 ### Vercel Olmadan GitHub Pages Cozumu
 
-Projede `update-spotify-json.yml` workflow'u, Spotify'dan son parcayi cekip `public/spotify-now-playing.json` dosyasini her 10 dakikada bir gunceller.
+Projede `update-spotify-json.yml` workflow'u, Spotify'dan son parcayi cekip static site'i her 5 dakikada bir yeniden deploy eder.
 
 Gereken GitHub Secrets:
 - `SPOTIFY_CLIENT_ID`
