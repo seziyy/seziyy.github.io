@@ -7,6 +7,7 @@ import { projects as initialProjectData } from '@/app/projects/projectsData'
 import type { Project as PortfolioProject } from '@/app/projects/projectsData'
 
 const ADMIN_PASSWORD = 'admin123'
+const PROJECTS_STORAGE_KEY = 'admin-projects'
 
 type ProjectDraft = {
   slug: string
@@ -78,6 +79,14 @@ const toFileTitle = (fileName: string) => {
   return fileName.replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' ').trim()
 }
 
+const normalizeImagePath = (value: string) => {
+  const normalized = value.trim().replace(/\\/g, '/').replace(/^\/?public\//i, '/')
+
+  if (!normalized) return ''
+  if (normalized.startsWith('/')) return normalized
+  return `/${normalized}`
+}
+
 const toImageSrc = (src?: string) => {
   return src ? encodeURI(src) : ''
 }
@@ -137,6 +146,32 @@ export default function AdminPage() {
       setIsAuthed(true)
     }
   }, [])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const storedProjects = window.localStorage.getItem(PROJECTS_STORAGE_KEY)
+    if (!storedProjects) return
+
+    try {
+      const parsedProjects = JSON.parse(storedProjects) as PortfolioProject[]
+      if (Array.isArray(parsedProjects)) {
+        setProjects(
+          parsedProjects.map((project) => ({
+            ...project,
+            image: normalizeImagePath(project.image),
+          }))
+        )
+      }
+    } catch {
+      window.localStorage.removeItem(PROJECTS_STORAGE_KEY)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    window.localStorage.setItem(PROJECTS_STORAGE_KEY, JSON.stringify(projects))
+  }, [projects])
 
   useEffect(() => {
     if (!isAuthed) return
@@ -312,11 +347,11 @@ export default function AdminPage() {
         .filter(Boolean),
       github: projectDraft.github.trim(),
       demo: projectDraft.demo.trim(),
-      image: projectDraft.image.trim(),
       year: projectDraft.year.trim(),
       role: projectDraft.role.trim(),
       status: projectDraft.status,
       documents: parsedDocuments,
+      image: normalizeImagePath(projectDraft.image),
       highlights: projectDraft.highlights
         .split('\n')
         .map((item) => item.trim())
@@ -416,7 +451,6 @@ export default function AdminPage() {
             >
               Giris Yap
             </button>
-            <p className="text-xs text-[color:var(--muted)]">Demo sifre: admin123</p>
           </div>
         </div>
       </div>

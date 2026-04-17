@@ -1,13 +1,46 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { Github, ExternalLink, Code2 } from 'lucide-react'
-import { projects } from '@/app/projects/projectsData'
+import { projects as initialProjects } from '@/app/projects/projectsData'
+import type { Project } from '@/app/projects/projectsData'
+
+const PROJECTS_STORAGE_KEY = 'admin-projects'
+const builtInProjectSlugs = new Set(initialProjects.map((project) => project.slug))
+
+const normalizeImagePath = (value: string) => {
+  const normalized = value.trim().replace(/\\/g, '/').replace(/^\/?public\//i, '/')
+
+  if (!normalized) return ''
+  if (normalized.startsWith('/')) return normalized
+  return `/${normalized}`
+}
 
 export default function ProjectsPage() {
   const router = useRouter()
+  const [projects, setProjects] = useState<Project[]>(initialProjects)
+
+  useEffect(() => {
+    const storedProjects = window.localStorage.getItem(PROJECTS_STORAGE_KEY)
+    if (!storedProjects) return
+
+    try {
+      const parsedProjects = JSON.parse(storedProjects) as Project[]
+      if (Array.isArray(parsedProjects) && parsedProjects.length > 0) {
+        setProjects(
+          parsedProjects.map((project) => ({
+            ...project,
+            image: normalizeImagePath(project.image),
+          }))
+        )
+      }
+    } catch {
+      window.localStorage.removeItem(PROJECTS_STORAGE_KEY)
+    }
+  }, [])
 
   return (
     <div className="min-h-screen pt-28 px-6 pb-20">
@@ -34,21 +67,31 @@ export default function ProjectsPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
               whileHover={{ y: -5 }}
-              onClick={() => router.push(`/projects/${project.slug}`)}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter' || event.key === ' ') {
-                  event.preventDefault()
-                  router.push(`/projects/${project.slug}`)
-                }
-              }}
-              role="button"
-              tabIndex={0}
-              className="card overflow-hidden cursor-pointer"
+              onClick={
+                builtInProjectSlugs.has(project.slug)
+                  ? () => router.push(`/projects/${project.slug}`)
+                  : undefined
+              }
+              onKeyDown={
+                builtInProjectSlugs.has(project.slug)
+                  ? (event) => {
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault()
+                        router.push(`/projects/${project.slug}`)
+                      }
+                    }
+                  : undefined
+              }
+              role={builtInProjectSlugs.has(project.slug) ? 'button' : undefined}
+              tabIndex={builtInProjectSlugs.has(project.slug) ? 0 : undefined}
+              className={`card overflow-hidden ${
+                builtInProjectSlugs.has(project.slug) ? 'cursor-pointer' : 'cursor-default'
+              }`}
             >
               {/* Project Image */}
               <div className="aspect-[16/9] bg-[color:var(--accent-soft)] flex items-center justify-center p-4 overflow-hidden">
                 <img
-                  src={project.image}
+                  src={normalizeImagePath(project.image)}
                   alt={`${project.title} cover`}
                   className="w-full h-full object-contain"
                 />
@@ -100,14 +143,21 @@ export default function ProjectsPage() {
                     ) : null}
                   </div>
 
-                  <Link
-                    href={`/projects/${project.slug}`}
-                    onClick={(event) => event.stopPropagation()}
-                    className="flex items-center gap-2 rounded-full border border-[color:var(--stroke)] px-4 py-2 text-sm text-[color:var(--ink)] hover:bg-[color:var(--accent-soft)] transition-colors"
-                  >
-                    <Code2 size={16} />
-                    Details
-                  </Link>
+                  {builtInProjectSlugs.has(project.slug) ? (
+                    <Link
+                      href={`/projects/${project.slug}`}
+                      onClick={(event) => event.stopPropagation()}
+                      className="flex items-center gap-2 rounded-full border border-[color:var(--stroke)] px-4 py-2 text-sm text-[color:var(--ink)] hover:bg-[color:var(--accent-soft)] transition-colors"
+                    >
+                      <Code2 size={16} />
+                      Details
+                    </Link>
+                  ) : (
+                    <span className="flex items-center gap-2 rounded-full border border-[color:var(--stroke)] px-4 py-2 text-sm text-[color:var(--muted)]">
+                      <Code2 size={16} />
+                      Details unavailable
+                    </span>
+                  )}
                 </div>
               </div>
             </motion.div>
