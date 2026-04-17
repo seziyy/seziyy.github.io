@@ -96,6 +96,8 @@ Not: Projede `next.config.js` icindeki `output: 'export'` ayari statik cikti ure
 1. Siteyi Vercel gibi server-side route destekleyen bir ortama deploy etmek.
 2. GitHub Pages'te kalacaksaniz Spotify endpoint'ini ayri bir serverless backend'de barindirip frontend'den o URL'e istek atmak.
 
+Bu durumda frontend tarafinda `NEXT_PUBLIC_SPOTIFY_API_URL=https://...` tanimlayip Spotify kartinin oraya istek atmasini saglayabilirsiniz. Local gelistirmede bu degisken bos kalirsa uygulama yine yerel `/api/spotify` route'unu kullanir.
+
 ## 📁 Proje Yapısı
 
 ```

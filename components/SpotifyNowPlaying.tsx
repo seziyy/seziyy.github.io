@@ -19,9 +19,11 @@ interface SpotifyData {
   deviceIsActive?: boolean
   trackId?: string
   progressMs?: number
+  cachedAt?: number
 }
 
 const SPOTIFY_CACHE_KEY = 'spotify-now-playing-cache'
+const SPOTIFY_API_URL = process.env.NEXT_PUBLIC_SPOTIFY_API_URL || '/api/spotify'
 
 function isTrackPayload(payload: SpotifyData | null | undefined) {
   return Boolean(payload?.title || payload?.artist || payload?.albumImageUrl)
@@ -58,6 +60,7 @@ export default function SpotifyNowPlaying() {
         if (isTrackPayload(cachedData)) {
           setData(cachedData)
           dataRef.current = cachedData
+          setStatusMessage(cachedData.isPlaying ? null : 'Showing your last listened track.')
         }
       }
     } catch (error) {
@@ -67,15 +70,19 @@ export default function SpotifyNowPlaying() {
 
   useEffect(() => {
     let isMounted = true
-    const apiBaseUrl = window.location.origin
 
     const storeTrack = (spotifyData: SpotifyData) => {
-      setData(spotifyData)
+      const cachedTrack = {
+        ...spotifyData,
+        cachedAt: Date.now(),
+      }
+
+      setData(cachedTrack)
       setStatusMessage(null)
-      dataRef.current = spotifyData
+      dataRef.current = cachedTrack
 
       try {
-        window.localStorage.setItem(SPOTIFY_CACHE_KEY, JSON.stringify(spotifyData))
+        window.localStorage.setItem(SPOTIFY_CACHE_KEY, JSON.stringify(cachedTrack))
       } catch (error) {
         console.error('Spotify cache write error:', error)
       }
@@ -87,8 +94,8 @@ export default function SpotifyNowPlaying() {
       if (!dataRef.current) {
         const fallbackData = {
           isPlaying: false,
-          title: message,
-          artist: 'Please check your API credentials',
+          title: 'Spotify is unavailable right now',
+          artist: 'The last listened track will appear after a successful sync.',
         }
 
         setData(fallbackData)
@@ -96,9 +103,15 @@ export default function SpotifyNowPlaying() {
       }
     }
 
+    const buildSpotifyApiUrl = () => {
+      const endpoint = new URL(SPOTIFY_API_URL, window.location.origin)
+      endpoint.searchParams.set('t', Date.now().toString())
+      return endpoint.toString()
+    }
+
     const fetchData = async () => {
       try {
-        const response = await fetch(`${apiBaseUrl}/api/spotify/?t=${Date.now()}`, {
+        const response = await fetch(buildSpotifyApiUrl(), {
           cache: 'no-store',
         })
         const spotifyData = await response.json()
@@ -111,7 +124,7 @@ export default function SpotifyNowPlaying() {
           } else if (isErrorPayload(spotifyData)) {
             keepLastTrack(spotifyData.artist || spotifyData.title || 'Spotify connection failed')
           } else {
-            setStatusMessage(dataRef.current ? 'Showing your last played track while Spotify is unavailable.' : null)
+            setStatusMessage(dataRef.current ? 'Showing your last listened track while Spotify is unavailable.' : null)
           }
         }
       } catch (error) {
@@ -120,12 +133,12 @@ export default function SpotifyNowPlaying() {
           setLastUpdatedAt(Date.now())
 
           if (dataRef.current) {
-            keepLastTrack('Showing your last played track while Spotify is unavailable.')
+            keepLastTrack('Showing your last listened track while Spotify is unavailable.')
           } else {
             const fallbackData = {
               isPlaying: false,
-              title: 'Spotify connection failed',
-              artist: 'Please check your API credentials',
+              title: 'Spotify is unavailable right now',
+              artist: 'The last listened track will appear after a successful sync.',
             }
 
             setData(fallbackData)
@@ -212,6 +225,11 @@ export default function SpotifyNowPlaying() {
             <Music className="text-[color:var(--accent-strong)]" size={24} />
           </div>
           <div className="flex-1">
+            {data?.source === 'recently_played' && (
+              <p className="text-[10px] uppercase tracking-[0.16em] text-[color:var(--muted)] mb-1">
+                Last listened
+              </p>
+            )}
             <p className="text-[color:var(--muted)] text-sm">{data?.title || 'Nothing is currently playing on Spotify'}</p>
             {data?.artist && <p className="text-[color:var(--muted)] text-xs mt-1 break-words">{data.artist}</p>}
             {(data?.warning || statusMessage) && (
