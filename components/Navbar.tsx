@@ -10,6 +10,8 @@ const navItems = [
   { name: 'Home', path: '/' },
   { name: 'Experience', path: '/experiences' },
   { name: 'Projects', path: '/projects' },
+  { name: 'Blockchain', path: '/blockchain' },
+  { name: 'IEEE', path: '/ieee' },
   { name: 'Gallery', path: '/gallery' },
   { name: 'Blog', path: 'https://medium.com/@halesezin', external: true },
 ]

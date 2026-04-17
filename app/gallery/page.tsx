@@ -268,10 +268,8 @@ export default function GalleryPage() {
   const filteredItems = activeCategory === 'All'
     ? galleryItems
     : galleryItems.filter((item) => {
-        const imagePath = normalizeImagePath(item.image).toLowerCase()
-        const categoryFolder = categoryFolders[activeCategory as GalleryFolderCategory]
-
-        return imagePath.startsWith(`/gallery/${categoryFolder}/`)
+        const resolvedCategory = resolveCategory(item, item.image)
+        return resolvedCategory === activeCategory
       })
 
   const activeFolder =
