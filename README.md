@@ -80,7 +80,7 @@ Refresh token nedir: Spotify'dan yeni access token almak icin kullanilan uzun om
 2. Redirect URI olarak su adresi ekleyin:
 	- `http://127.0.0.1:3000/callback`
 3. Bu authorize URL'sini tarayicida acin (client id'yi degistirin):
-	- `https://accounts.spotify.com/authorize?client_id=YOUR_CLIENT_ID&response_type=code&redirect_uri=http%3A%2F%2F127.0.0.1%3A3000%2Fcallback&scope=user-read-currently-playing%20user-read-playback-state`
+	- `https://accounts.spotify.com/authorize?client_id=YOUR_CLIENT_ID&response_type=code&redirect_uri=http%3A%2F%2F127.0.0.1%3A3000%2Fcallback&scope=user-read-currently-playing%20user-read-playback-state%20user-read-recently-played`
 4. Login sonrasi adres cubugundaki `?code=...` degerini alin.
 5. Kodu refresh token'a cevirmek icin proje icindeki yardimci script'i calistirin:
 	- `node scripts/get-spotify-refresh-token.js`

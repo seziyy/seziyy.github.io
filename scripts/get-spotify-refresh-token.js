@@ -1,5 +1,44 @@
 const https = require('https')
 const readline = require('readline')
+const fs = require('fs')
+const path = require('path')
+
+function loadLocalEnvFile() {
+  const envPath = path.resolve(process.cwd(), '.env.local')
+
+  if (!fs.existsSync(envPath)) {
+    return
+  }
+
+  const content = fs.readFileSync(envPath, 'utf8')
+  const lines = content.split(/\r?\n/)
+
+  for (const line of lines) {
+    const trimmed = line.trim()
+
+    if (!trimmed || trimmed.startsWith('#')) {
+      continue
+    }
+
+    const separatorIndex = trimmed.indexOf('=')
+
+    if (separatorIndex <= 0) {
+      continue
+    }
+
+    const key = trimmed.slice(0, separatorIndex).trim()
+    const rawValue = trimmed.slice(separatorIndex + 1).trim()
+
+    if (!key || process.env[key]) {
+      continue
+    }
+
+    const cleanedValue = rawValue.replace(/^['"]|['"]$/g, '')
+    process.env[key] = cleanedValue
+  }
+}
+
+loadLocalEnvFile()
 
 const clientId = process.env.SPOTIFY_CLIENT_ID
 const clientSecret = process.env.SPOTIFY_CLIENT_SECRET
