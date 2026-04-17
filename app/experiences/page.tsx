@@ -239,9 +239,6 @@ export default function ExperiencesPage() {
                         </div>
                       )}
                     </div>
-                    <p className="mt-3 text-xs text-[color:var(--muted)]">
-                      Add your images to: public/experiences/{exp.company.toLowerCase().replace(/[^a-z0-9]+/g, '-')}
-                    </p>
                   </div>
 
                   <div className="rounded-2xl border border-[color:var(--stroke)] bg-white p-5">
