@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Music, Play } from 'lucide-react'
 import Image from 'next/image'
@@ -21,13 +21,80 @@ interface SpotifyData {
   progressMs?: number
 }
 
+const SPOTIFY_CACHE_KEY = 'spotify-now-playing-cache'
+
+function isTrackPayload(payload: SpotifyData | null | undefined) {
+  return Boolean(payload?.title || payload?.artist || payload?.albumImageUrl)
+}
+
+function isErrorPayload(payload: SpotifyData | null | undefined) {
+  if (!payload?.title) return false
+
+  return [
+    'Spotify connection failed',
+    'Spotify authorization failed',
+    'Spotify is not configured',
+    'Spotify scope missing',
+  ].includes(payload.title)
+}
+
 export default function SpotifyNowPlaying() {
-  const [data, setData] = useState<SpotifyData>({ isPlaying: false })
+  const [data, setData] = useState<SpotifyData | null>(null)
   const [lastUpdatedAt, setLastUpdatedAt] = useState<number | null>(null)
+  const [statusMessage, setStatusMessage] = useState<string | null>(null)
+  const dataRef = useRef<SpotifyData | null>(null)
+
+  useEffect(() => {
+    dataRef.current = data
+  }, [data])
+
+  useEffect(() => {
+    try {
+      const cachedValue = window.localStorage.getItem(SPOTIFY_CACHE_KEY)
+
+      if (cachedValue) {
+        const cachedData = JSON.parse(cachedValue) as SpotifyData
+
+        if (isTrackPayload(cachedData)) {
+          setData(cachedData)
+          dataRef.current = cachedData
+        }
+      }
+    } catch (error) {
+      console.error('Spotify cache read error:', error)
+    }
+  }, [])
 
   useEffect(() => {
     let isMounted = true
     const apiBaseUrl = window.location.origin
+
+    const storeTrack = (spotifyData: SpotifyData) => {
+      setData(spotifyData)
+      setStatusMessage(null)
+      dataRef.current = spotifyData
+
+      try {
+        window.localStorage.setItem(SPOTIFY_CACHE_KEY, JSON.stringify(spotifyData))
+      } catch (error) {
+        console.error('Spotify cache write error:', error)
+      }
+    }
+
+    const keepLastTrack = (message: string) => {
+      setStatusMessage(message)
+
+      if (!dataRef.current) {
+        const fallbackData = {
+          isPlaying: false,
+          title: message,
+          artist: 'Please check your API credentials',
+        }
+
+        setData(fallbackData)
+        dataRef.current = fallbackData
+      }
+    }
 
     const fetchData = async () => {
       try {
@@ -35,19 +102,35 @@ export default function SpotifyNowPlaying() {
           cache: 'no-store',
         })
         const spotifyData = await response.json()
+
         if (isMounted) {
-          setData(spotifyData)
           setLastUpdatedAt(Date.now())
+
+          if (isTrackPayload(spotifyData) && !isErrorPayload(spotifyData)) {
+            storeTrack(spotifyData)
+          } else if (isErrorPayload(spotifyData)) {
+            keepLastTrack(spotifyData.artist || spotifyData.title || 'Spotify connection failed')
+          } else {
+            setStatusMessage(dataRef.current ? 'Showing your last played track while Spotify is unavailable.' : null)
+          }
         }
       } catch (error) {
         console.error('Spotify data fetch error:', error)
         if (isMounted) {
-          setData({
-            isPlaying: false,
-            title: 'Spotify connection failed',
-            artist: 'Please check your API credentials',
-          })
           setLastUpdatedAt(Date.now())
+
+          if (dataRef.current) {
+            keepLastTrack('Showing your last played track while Spotify is unavailable.')
+          } else {
+            const fallbackData = {
+              isPlaying: false,
+              title: 'Spotify connection failed',
+              artist: 'Please check your API credentials',
+            }
+
+            setData(fallbackData)
+            dataRef.current = fallbackData
+          }
         }
       }
     }
@@ -95,15 +178,14 @@ export default function SpotifyNowPlaying() {
         </p>
       )}
 
-      {(data.source || data.deviceName) && (
+      {data && (data.deviceName || data.deviceType) && (
         <div className="mb-3 flex flex-wrap gap-x-3 gap-y-1 text-[10px] text-[color:var(--muted)] uppercase tracking-[0.16em]">
-          {data.source && <span>Source: {data.source}</span>}
           {data.deviceName && <span>Device: {data.deviceName}</span>}
           {data.deviceType && <span>Type: {data.deviceType}</span>}
         </div>
       )}
 
-      {data.isPlaying ? (
+      {data?.isPlaying ? (
         <div className="flex items-center space-x-4">
           {data.albumImageUrl && (
             <div className="relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
@@ -130,9 +212,11 @@ export default function SpotifyNowPlaying() {
             <Music className="text-[color:var(--accent-strong)]" size={24} />
           </div>
           <div className="flex-1">
-            <p className="text-[color:var(--muted)] text-sm">{data.title || 'Nothing is currently playing on Spotify'}</p>
-            {data.artist && <p className="text-[color:var(--muted)] text-xs mt-1 break-words">{data.artist}</p>}
-            {data.warning && <p className="text-[color:var(--muted)] text-xs mt-1">{data.warning}</p>}
+            <p className="text-[color:var(--muted)] text-sm">{data?.title || 'Nothing is currently playing on Spotify'}</p>
+            {data?.artist && <p className="text-[color:var(--muted)] text-xs mt-1 break-words">{data.artist}</p>}
+            {(data?.warning || statusMessage) && (
+              <p className="text-[color:var(--muted)] text-xs mt-1">{data?.warning || statusMessage}</p>
+            )}
           </div>
         </div>
       )}
