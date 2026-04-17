@@ -98,6 +98,17 @@ Not: Projede `next.config.js` icindeki `output: 'export'` ayari statik cikti ure
 
 Bu durumda frontend tarafinda `NEXT_PUBLIC_SPOTIFY_API_URL=https://...` tanimlayip Spotify kartinin oraya istek atmasini saglayabilirsiniz. Local gelistirmede bu degisken bos kalirsa uygulama yine yerel `/api/spotify` route'unu kullanir.
 
+### Vercel Olmadan GitHub Pages Cozumu
+
+Projede `update-spotify-json.yml` workflow'u, Spotify'dan son parcayi cekip `public/spotify-now-playing.json` dosyasini her 10 dakikada bir gunceller.
+
+Gereken GitHub Secrets:
+- `SPOTIFY_CLIENT_ID`
+- `SPOTIFY_CLIENT_SECRET`
+- `SPOTIFY_REFRESH_TOKEN`
+
+Bu yapida frontend production'da dogrudan `spotify-now-playing.json` dosyasini okur; localhost'ta ise `/api/spotify` route'u kullanmaya devam eder.
+
 ## 📁 Proje Yapısı
 
 ```

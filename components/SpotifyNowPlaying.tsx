@@ -23,7 +23,7 @@ interface SpotifyData {
 }
 
 const SPOTIFY_CACHE_KEY = 'spotify-now-playing-cache'
-const SPOTIFY_API_URL = process.env.NEXT_PUBLIC_SPOTIFY_API_URL || '/api/spotify'
+const SPOTIFY_API_URL = process.env.NEXT_PUBLIC_SPOTIFY_API_URL
 
 function isTrackPayload(payload: SpotifyData | null | undefined) {
   return Boolean(payload?.title || payload?.artist || payload?.albumImageUrl)
@@ -104,7 +104,9 @@ export default function SpotifyNowPlaying() {
     }
 
     const buildSpotifyApiUrl = () => {
-      const endpoint = new URL(SPOTIFY_API_URL, window.location.origin)
+      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+      const defaultEndpoint = isLocalhost ? '/api/spotify' : '/spotify-now-playing.json'
+      const endpoint = new URL(SPOTIFY_API_URL || defaultEndpoint, window.location.origin)
       endpoint.searchParams.set('t', Date.now().toString())
       return endpoint.toString()
     }
