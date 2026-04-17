@@ -5,9 +5,13 @@ import { motion } from 'framer-motion'
 import { Plus, Trash2, Pencil, LogOut, Upload } from 'lucide-react'
 import { projects as initialProjectData } from '@/app/projects/projectsData'
 import type { Project as PortfolioProject } from '@/app/projects/projectsData'
+import {
+  PROJECTS_STORAGE_KEY,
+  normalizeImagePath,
+  sanitizeStoredProjects,
+} from '@/app/projects/projectClientUtils'
 
 const ADMIN_PASSWORD = 'admin123'
-const PROJECTS_STORAGE_KEY = 'admin-projects'
 
 type ProjectDraft = {
   slug: string
@@ -79,14 +83,6 @@ const toFileTitle = (fileName: string) => {
   return fileName.replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' ').trim()
 }
 
-const normalizeImagePath = (value: string) => {
-  const normalized = value.trim().replace(/\\/g, '/').replace(/^\/?public\//i, '/')
-
-  if (!normalized) return ''
-  if (normalized.startsWith('/')) return normalized
-  return `/${normalized}`
-}
-
 const toImageSrc = (src?: string) => {
   return src ? encodeURI(src) : ''
 }
@@ -156,12 +152,16 @@ export default function AdminPage() {
     try {
       const parsedProjects = JSON.parse(storedProjects) as PortfolioProject[]
       if (Array.isArray(parsedProjects)) {
-        setProjects(
-          parsedProjects.map((project) => ({
-            ...project,
-            image: normalizeImagePath(project.image),
-          }))
-        )
+        const { projects: sanitizedProjects, changed } = sanitizeStoredProjects(parsedProjects, {
+          fallbackProjects: initialProjects,
+          ensureSlugs: ['wallet-guardai'],
+        })
+
+        setProjects(sanitizedProjects)
+
+        if (changed) {
+          window.localStorage.setItem(PROJECTS_STORAGE_KEY, JSON.stringify(sanitizedProjects))
+        }
       }
     } catch {
       window.localStorage.removeItem(PROJECTS_STORAGE_KEY)
@@ -170,7 +170,13 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (typeof window === 'undefined') return
-    window.localStorage.setItem(PROJECTS_STORAGE_KEY, JSON.stringify(projects))
+
+    const { projects: sanitizedProjects } = sanitizeStoredProjects(projects, {
+      fallbackProjects: initialProjects,
+      ensureSlugs: ['wallet-guardai'],
+    })
+
+    window.localStorage.setItem(PROJECTS_STORAGE_KEY, JSON.stringify(sanitizedProjects))
   }, [projects])
 
   useEffect(() => {

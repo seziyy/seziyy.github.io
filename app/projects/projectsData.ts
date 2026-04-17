@@ -77,6 +77,29 @@ export const projects: Project[] = [
       'Secure payment architecture with a web3-ready structure',
     ],
   },
+  {
+    id: 3,
+    slug: 'wallet-guardai',
+    label: 'Blockchain Project',
+    title: 'Wallet GuardAI',
+    shortDescription:
+      'An AI-powered Web3 security copilot for wallet and transaction risk analysis.',
+    description:
+      'Wallet GuardAI is an AI-powered Web3 security copilot that provides real-time risk analysis for wallets and transactions. By fetching and simplifying complex on-chain data, the AI generates instant risk scores, plain-English explanations, and actionable recommendations. It goes beyond displaying raw data by directly answering questions like "Is this wallet safe?" and "Should I proceed?", helping users make secure and informed Web3 decisions.',
+    technologies: ['Solidity', 'Python'],
+    github: 'https://github.com/BurakSahin00/blitz-hackathon.git',
+    demo: '',
+    image: '/projects/walletguardai.png',
+    year: '2025',
+    role: 'Blockchain Developer',
+    status: 'Completed',
+    documents: [],
+    highlights: [
+      'Real-time wallet and transaction risk scoring',
+      'Plain-language AI explanations for on-chain activity',
+      'Actionable security recommendations before approving actions',
+    ],
+  },
 ]
 
 export const getProjectBySlug = (slug: string) => {

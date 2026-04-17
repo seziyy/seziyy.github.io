@@ -16,16 +16,21 @@ const bioSlides = [
     ],
   },
   {
-    lang: 'EN',
+    lang: 'TR',
     points: [
-      'Curious, ambitious, and driven by a constant "why not?".',
-      'Analytical when coding, bold when creating ideas — disciplined with a touch of creative chaos.',
-      'Has natural leadership instincts, doesn\'t fade into the crowd, and takes the wheel when needed.',
-      'Doesn\'t avoid hard problems; actually prefers them a bit challenging.',
-      'One-liner: Someone who upgrades their potential every time a problem shows up.',
+      'Merakli, hirsli ve guclu bir "neden olmasin?" bakis acisina sahip.',
+      'Kod yazarken analitik, fikir uretirken cesur; disiplin ile yaratici kaosu dengeler.',
+      'Dogal liderlik icguduleri vardir ve gerektiginde inisiyatif alir.',
+      'Zor islerden kacmaz, aksine meydan okuyan problemlerle enerji bulur.',
+      'Tek cumleyle: Cozdugu her problemle kendini gelistiren bir uretici.',
     ],
   },
 ]
+
+const languageLabels: Record<string, string> = {
+  EN: 'English',
+  TR: 'Turkce',
+}
 
 export default function AboutSlider() {
   const [current, setCurrent] = useState(0)
@@ -80,7 +85,7 @@ export default function AboutSlider() {
             {/* Language Badge */}
             <div className="flex items-center space-x-2 mb-2">
               <span className="px-3 py-1 bg-[color:var(--accent-soft)] text-[color:var(--accent-strong)] text-xs rounded-full border border-[color:var(--stroke)] font-semibold">
-                English
+                {languageLabels[bioSlides[current].lang] ?? bioSlides[current].lang}
               </span>
             </div>
 

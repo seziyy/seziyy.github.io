@@ -1,31 +1,82 @@
+'use client'
+
+import { Suspense, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
-import { notFound } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { ArrowLeft, ExternalLink, Github } from 'lucide-react'
-import { getProjectBySlug, projects } from '@/app/projects/projectsData'
+import { projects as initialProjects } from '@/app/projects/projectsData'
 import type { Project } from '@/app/projects/projectsData'
 import ProjectNavSection from '@/components/ProjectNavSection'
+import {
+  PROJECTS_STORAGE_KEY,
+  sanitizeStoredProjects,
+  normalizeImagePath,
+} from '@/app/projects/projectClientUtils'
 
-type ProjectDetailPageProps = {
-  params: {
-    slug: string
-  }
+const builtInProjectSlugs = new Set(initialProjects.map((project) => project.slug))
+
+const getProjectHref = (slug: string) => {
+  return builtInProjectSlugs.has(slug)
+    ? `/projects/${slug}`
+    : `/projects/custom?slug=${encodeURIComponent(slug)}`
 }
 
-export function generateStaticParams() {
-  return projects.map((project: Project) => ({
-    slug: project.slug,
-  }))
-}
+function CustomProjectDetailPageContent() {
+  const searchParams = useSearchParams()
+  const slug = searchParams.get('slug') ?? ''
+  const [projects, setProjects] = useState<Project[]>(initialProjects)
 
-export default async function ProjectDetailPage({ params }: ProjectDetailPageProps) {
-  const { slug } = params
-  const project = getProjectBySlug(slug)
+  useEffect(() => {
+    const storedProjects = window.localStorage.getItem(PROJECTS_STORAGE_KEY)
+    if (!storedProjects) return
 
-  if (!project) {
-    notFound()
+    try {
+      const parsedProjects = JSON.parse(storedProjects) as Project[]
+      if (Array.isArray(parsedProjects) && parsedProjects.length > 0) {
+        const { projects: sanitizedProjects, changed } = sanitizeStoredProjects(parsedProjects, {
+          fallbackProjects: initialProjects,
+          ensureSlugs: ['wallet-guardai'],
+        })
+
+        setProjects(sanitizedProjects)
+
+        if (changed) {
+          window.localStorage.setItem(PROJECTS_STORAGE_KEY, JSON.stringify(sanitizedProjects))
+        }
+      }
+    } catch {
+      window.localStorage.removeItem(PROJECTS_STORAGE_KEY)
+    }
+  }, [])
+
+  const project = useMemo(() => {
+    return projects.find((item) => item.slug === slug)
+  }, [projects, slug])
+
+  const relatedProjects = useMemo(() => {
+    if (!project) return []
+    return projects.filter((item) => item.slug !== project.slug).slice(0, 2)
+  }, [project, projects])
+
+  if (!slug || !project) {
+    return (
+      <div className="min-h-screen pt-28 px-6 pb-20">
+        <div className="max-w-3xl mx-auto card p-8">
+          <h1 className="text-3xl font-display">Project not found</h1>
+          <p className="text-[color:var(--muted)] mt-3">
+            Bu proje kaydi bulunamadi. Projeyi admin panelinden tekrar kaydedin.
+          </p>
+          <Link
+            href="/projects"
+            className="inline-flex items-center gap-2 mt-6 rounded-full border border-[color:var(--stroke)] px-5 py-2.5 text-sm hover:bg-[color:var(--accent-soft)] transition-colors"
+          >
+            <ArrowLeft size={16} />
+            Back to projects
+          </Link>
+        </div>
+      </div>
+    )
   }
-
-  const relatedProjects = projects.filter((item: Project) => item.slug !== project.slug).slice(0, 2)
 
   return (
     <div className="min-h-screen pt-28 px-6 pb-20">
@@ -42,7 +93,7 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
           <div className="grid lg:grid-cols-2">
             <div className="bg-[color:var(--accent-soft)] min-h-[280px] lg:min-h-full p-6 flex items-center justify-center">
               <img
-                src={project.image}
+                src={normalizeImagePath(project.image)}
                 alt={`${project.title} project image`}
                 className="max-w-full max-h-[560px] w-auto h-auto object-contain"
               />
@@ -69,7 +120,7 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
               </div>
 
               <div className="flex flex-wrap gap-3 mb-8">
-                {project.technologies.map((tech: string) => (
+                {project.technologies.map((tech) => (
                   <span
                     key={tech}
                     className="px-3 py-1 bg-[color:var(--accent-soft)] text-[color:var(--accent-strong)] text-xs rounded-full"
@@ -131,7 +182,7 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
           <div className="lg:col-span-2 card p-7">
             <h2 className="text-2xl font-display mb-4">What I built</h2>
             <ul className="space-y-3 text-[color:var(--muted)]">
-              {project.highlights.map((highlight: string) => (
+              {project.highlights.map((highlight) => (
                 <li key={highlight} className="flex items-start gap-3">
                   <span className="mt-2 h-2 w-2 rounded-full bg-[color:var(--accent)] shrink-0" />
                   <span>{highlight}</span>
@@ -143,10 +194,10 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
           <div className="card p-7">
             <h2 className="text-xl font-display mb-4">More projects</h2>
             <div className="space-y-3">
-              {relatedProjects.map((item: Project) => (
+              {relatedProjects.map((item) => (
                 <Link
                   key={item.slug}
-                  href={`/projects/${item.slug}`}
+                  href={getProjectHref(item.slug)}
                   className="block rounded-2xl border border-[color:var(--stroke)] bg-white/70 p-4 hover:bg-[color:var(--accent-soft)] transition-colors"
                 >
                   <p className="font-semibold mb-1">{item.title}</p>
@@ -160,5 +211,21 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
         <ProjectNavSection currentSlug={project.slug} />
       </div>
     </div>
+  )
+}
+
+export default function CustomProjectDetailPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen pt-28 px-6 pb-20">
+          <div className="max-w-3xl mx-auto card p-8">
+            <p className="text-[color:var(--muted)]">Project loading...</p>
+          </div>
+        </div>
+      }
+    >
+      <CustomProjectDetailPageContent />
+    </Suspense>
   )
 }

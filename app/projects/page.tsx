@@ -7,16 +7,18 @@ import { motion } from 'framer-motion'
 import { Github, ExternalLink, Code2 } from 'lucide-react'
 import { projects as initialProjects } from '@/app/projects/projectsData'
 import type { Project } from '@/app/projects/projectsData'
+import {
+  PROJECTS_STORAGE_KEY,
+  sanitizeStoredProjects,
+  normalizeImagePath,
+} from '@/app/projects/projectClientUtils'
 
-const PROJECTS_STORAGE_KEY = 'admin-projects'
 const builtInProjectSlugs = new Set(initialProjects.map((project) => project.slug))
 
-const normalizeImagePath = (value: string) => {
-  const normalized = value.trim().replace(/\\/g, '/').replace(/^\/?public\//i, '/')
-
-  if (!normalized) return ''
-  if (normalized.startsWith('/')) return normalized
-  return `/${normalized}`
+const getProjectHref = (slug: string) => {
+  return builtInProjectSlugs.has(slug)
+    ? `/projects/${slug}`
+    : `/projects/custom?slug=${encodeURIComponent(slug)}`
 }
 
 export default function ProjectsPage() {
@@ -30,12 +32,16 @@ export default function ProjectsPage() {
     try {
       const parsedProjects = JSON.parse(storedProjects) as Project[]
       if (Array.isArray(parsedProjects) && parsedProjects.length > 0) {
-        setProjects(
-          parsedProjects.map((project) => ({
-            ...project,
-            image: normalizeImagePath(project.image),
-          }))
-        )
+        const { projects: sanitizedProjects, changed } = sanitizeStoredProjects(parsedProjects, {
+          fallbackProjects: initialProjects,
+          ensureSlugs: ['wallet-guardai'],
+        })
+
+        setProjects(sanitizedProjects)
+
+        if (changed) {
+          window.localStorage.setItem(PROJECTS_STORAGE_KEY, JSON.stringify(sanitizedProjects))
+        }
       }
     } catch {
       window.localStorage.removeItem(PROJECTS_STORAGE_KEY)
@@ -67,26 +73,16 @@ export default function ProjectsPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
               whileHover={{ y: -5 }}
-              onClick={
-                builtInProjectSlugs.has(project.slug)
-                  ? () => router.push(`/projects/${project.slug}`)
-                  : undefined
-              }
-              onKeyDown={
-                builtInProjectSlugs.has(project.slug)
-                  ? (event) => {
-                      if (event.key === 'Enter' || event.key === ' ') {
-                        event.preventDefault()
-                        router.push(`/projects/${project.slug}`)
-                      }
-                    }
-                  : undefined
-              }
-              role={builtInProjectSlugs.has(project.slug) ? 'button' : undefined}
-              tabIndex={builtInProjectSlugs.has(project.slug) ? 0 : undefined}
-              className={`card overflow-hidden ${
-                builtInProjectSlugs.has(project.slug) ? 'cursor-pointer' : 'cursor-default'
-              }`}
+              onClick={() => router.push(getProjectHref(project.slug))}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault()
+                  router.push(getProjectHref(project.slug))
+                }
+              }}
+              role="button"
+              tabIndex={0}
+              className="card overflow-hidden cursor-pointer"
             >
               {/* Project Image */}
               <div className="aspect-[16/9] bg-[color:var(--accent-soft)] flex items-center justify-center p-4 overflow-hidden">
@@ -143,21 +139,14 @@ export default function ProjectsPage() {
                     ) : null}
                   </div>
 
-                  {builtInProjectSlugs.has(project.slug) ? (
-                    <Link
-                      href={`/projects/${project.slug}`}
-                      onClick={(event) => event.stopPropagation()}
-                      className="flex items-center gap-2 rounded-full border border-[color:var(--stroke)] px-4 py-2 text-sm text-[color:var(--ink)] hover:bg-[color:var(--accent-soft)] transition-colors"
-                    >
-                      <Code2 size={16} />
-                      Details
-                    </Link>
-                  ) : (
-                    <span className="flex items-center gap-2 rounded-full border border-[color:var(--stroke)] px-4 py-2 text-sm text-[color:var(--muted)]">
-                      <Code2 size={16} />
-                      Details unavailable
-                    </span>
-                  )}
+                  <Link
+                    href={getProjectHref(project.slug)}
+                    onClick={(event) => event.stopPropagation()}
+                    className="flex items-center gap-2 rounded-full border border-[color:var(--stroke)] px-4 py-2 text-sm text-[color:var(--ink)] hover:bg-[color:var(--accent-soft)] transition-colors"
+                  >
+                    <Code2 size={16} />
+                    Details
+                  </Link>
                 </div>
               </div>
             </motion.div>
