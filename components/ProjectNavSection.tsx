@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
-import { projects as initialProjects } from '@/app/projects/projectsData'
+import { projects as initialProjects, requiredProjectSlugs } from '@/app/projects/projectsData'
 import type { Project } from '@/app/projects/projectsData'
 import {
   PROJECTS_STORAGE_KEY,
@@ -34,7 +34,7 @@ export default function ProjectNavSection({ currentSlug }: ProjectNavSectionProp
       if (Array.isArray(parsedProjects) && parsedProjects.length > 1) {
         const { projects: sanitizedProjects, changed } = sanitizeStoredProjects(parsedProjects, {
           fallbackProjects: initialProjects,
-          ensureSlugs: ['wallet-guardai'],
+          ensureSlugs: requiredProjectSlugs,
         })
 
         setProjects(sanitizedProjects)

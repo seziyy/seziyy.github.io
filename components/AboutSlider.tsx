@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
@@ -35,6 +35,7 @@ const languageLabels: Record<string, string> = {
 export default function AboutSlider() {
   const [current, setCurrent] = useState(0)
   const [autoplay, setAutoplay] = useState(true)
+  const autoplayResumeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Automatic slide transition
   useEffect(() => {
@@ -47,32 +48,46 @@ export default function AboutSlider() {
     return () => clearTimeout(timer)
   }, [current, autoplay])
 
+  useEffect(() => {
+    return () => {
+      if (autoplayResumeTimer.current) {
+        clearTimeout(autoplayResumeTimer.current)
+      }
+    }
+  }, [])
+
+  const pauseAutoplayTemporarily = () => {
+    setAutoplay(false)
+
+    if (autoplayResumeTimer.current) {
+      clearTimeout(autoplayResumeTimer.current)
+    }
+
+    autoplayResumeTimer.current = setTimeout(() => {
+      setAutoplay(true)
+      autoplayResumeTimer.current = null
+    }, 2000)
+  }
+
   const goToSlide = (index: number) => {
     setCurrent(index)
-    setAutoplay(false)
-    // Re-enable autoplay after 2 seconds
-    const timer = setTimeout(() => setAutoplay(true), 2000)
-    return () => clearTimeout(timer)
+    pauseAutoplayTemporarily()
   }
 
   const goNext = () => {
     setCurrent((prev) => (prev + 1) % bioSlides.length)
-    setAutoplay(false)
-    const timer = setTimeout(() => setAutoplay(true), 2000)
-    return () => clearTimeout(timer)
+    pauseAutoplayTemporarily()
   }
 
   const goPrev = () => {
     setCurrent((prev) => (prev - 1 + bioSlides.length) % bioSlides.length)
-    setAutoplay(false)
-    const timer = setTimeout(() => setAutoplay(true), 2000)
-    return () => clearTimeout(timer)
+    pauseAutoplayTemporarily()
   }
 
   return (
     <div className="w-full max-w-2xl mx-auto">
       {/* Slider Container */}
-      <div className="relative card p-6 min-h-[240px] flex flex-col justify-center">
+      <div className="relative flex min-h-[240px] flex-col justify-center rounded-lg border border-[color:var(--stroke)] bg-white/45 p-4 sm:p-5">
         <AnimatePresence mode="wait">
           <motion.div
             key={current}
@@ -108,21 +123,25 @@ export default function AboutSlider() {
       </div>
 
       {/* Controls */}
-      <div className="flex items-center justify-between mt-6">
+      <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
         {/* Navigation Buttons */}
         <div className="flex items-center space-x-3">
           <motion.button
+            type="button"
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
             onClick={goPrev}
+            aria-label="Previous bio slide"
             className="p-2 rounded-lg border border-[color:var(--stroke)] text-[color:var(--muted)] hover:text-[color:var(--ink)] transition-colors"
           >
             <ChevronLeft size={20} />
           </motion.button>
           <motion.button
+            type="button"
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
             onClick={goNext}
+            aria-label="Next bio slide"
             className="p-2 rounded-lg border border-[color:var(--stroke)] text-[color:var(--muted)] hover:text-[color:var(--ink)] transition-colors"
           >
             <ChevronRight size={20} />
@@ -134,9 +153,12 @@ export default function AboutSlider() {
           {bioSlides.map((_, idx) => (
             <motion.button
               key={idx}
+              type="button"
               whileHover={{ scale: 1.2 }}
               whileTap={{ scale: 0.9 }}
               onClick={() => goToSlide(idx)}
+              aria-label={`Show ${languageLabels[bioSlides[idx].lang] ?? bioSlides[idx].lang} bio slide`}
+              aria-current={idx === current ? 'true' : undefined}
               className={`w-2 h-2 rounded-full transition-all ${
                 idx === current
                   ? 'bg-[color:var(--accent)] w-6'

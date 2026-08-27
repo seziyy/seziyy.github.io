@@ -4,7 +4,7 @@ import { Suspense, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { ArrowLeft, ExternalLink, Github } from 'lucide-react'
-import { projects as initialProjects } from '@/app/projects/projectsData'
+import { projects as initialProjects, requiredProjectSlugs } from '@/app/projects/projectsData'
 import type { Project } from '@/app/projects/projectsData'
 import ProjectNavSection from '@/components/ProjectNavSection'
 import {
@@ -35,7 +35,7 @@ function CustomProjectDetailPageContent() {
       if (Array.isArray(parsedProjects) && parsedProjects.length > 0) {
         const { projects: sanitizedProjects, changed } = sanitizeStoredProjects(parsedProjects, {
           fallbackProjects: initialProjects,
-          ensureSlugs: ['wallet-guardai'],
+          ensureSlugs: requiredProjectSlugs,
         })
 
         setProjects(sanitizedProjects)

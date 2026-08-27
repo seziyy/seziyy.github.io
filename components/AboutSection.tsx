@@ -12,7 +12,7 @@ export default function AboutSection({ className = '' }: AboutSectionProps) {
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
       viewport={{ once: true }}
-      className={`card p-8 ${className}`}
+      className={`card p-5 sm:p-8 ${className}`}
     >
       <motion.div
         initial={{ y: 30, opacity: 0 }}

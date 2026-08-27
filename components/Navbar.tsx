@@ -25,7 +25,7 @@ export default function Navbar() {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20)
     }
-    window.addEventListener('scroll', handleScroll)
+    window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
@@ -37,13 +37,13 @@ export default function Navbar() {
         isScrolled ? 'bg-[color:var(--paper)]/90 backdrop-blur-md shadow-sm' : 'bg-transparent'
       }`}
     >
-      <div className="max-w-6xl mx-auto px-6">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2">
+          <Link href="/" className="flex min-w-0 items-center space-x-2">
             <motion.div
               whileHover={{ scale: 1.05 }}
-              className="text-xl font-semibold font-display"
+              className="max-w-[calc(100vw-6rem)] truncate text-lg font-semibold font-display sm:text-xl"
             >
               Hale Sezin Özorman
             </motion.div>
@@ -94,8 +94,11 @@ export default function Navbar() {
           {/* Mobile menu button */}
           <div className="md:hidden">
             <button
+              type="button"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="text-[color:var(--muted)] hover:text-[color:var(--ink)] p-2"
+              aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={isMobileMenuOpen}
+              className="p-2 text-[color:var(--muted)] transition-colors hover:text-[color:var(--ink)]"
             >
               {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -109,9 +112,9 @@ export default function Navbar() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
-          className="md:hidden bg-[color:var(--paper)]/95 backdrop-blur-md"
+          className="max-h-[calc(100dvh-4rem)] overflow-y-auto overscroll-contain bg-[color:var(--paper)]/95 backdrop-blur-md md:hidden"
         >
-          <div className="px-2 pt-2 pb-3 space-y-1">
+          <div className="space-y-1 px-4 pb-4 pt-2">
             {navItems.map((item) => (
               item.external ? (
                 <a

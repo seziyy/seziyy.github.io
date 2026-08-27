@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { Github, ExternalLink, Code2 } from 'lucide-react'
-import { projects as initialProjects } from '@/app/projects/projectsData'
+import { projects as initialProjects, requiredProjectSlugs } from '@/app/projects/projectsData'
 import type { Project } from '@/app/projects/projectsData'
 import {
   PROJECTS_STORAGE_KEY,
@@ -34,7 +34,7 @@ export default function ProjectsPage() {
       if (Array.isArray(parsedProjects) && parsedProjects.length > 0) {
         const { projects: sanitizedProjects, changed } = sanitizeStoredProjects(parsedProjects, {
           fallbackProjects: initialProjects,
-          ensureSlugs: ['wallet-guardai'],
+          ensureSlugs: requiredProjectSlugs,
         })
 
         setProjects(sanitizedProjects)

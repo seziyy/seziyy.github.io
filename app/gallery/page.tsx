@@ -1,16 +1,19 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { ChevronLeft, ChevronRight, X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, FileText, PlayCircle, X } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 type Category = 'All' | 'Drawings' | 'Designs' | 'Notes' | 'Moments'
+type MediaType = 'image' | 'video' | 'pdf'
 type GalleryItem = {
   id: number
   title: string
   category: string
   image: string
   hash?: string
+  modifiedAt?: number
+  mediaType?: MediaType
 }
 
 const categories: Category[] = ['All', 'Drawings', 'Designs', 'Notes', 'Moments']
@@ -82,10 +85,41 @@ const resolveCategory = (item: GalleryItem, imagePath: string): Exclude<Category
 type FolderFileEntry = {
   name: string
   hash?: string
+  modifiedAt?: number
+  mediaType?: MediaType
 }
 
 const getFileTitle = (fileName: string) => {
   return fileName.replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' ').trim()
+}
+
+const getMediaTypeFromPath = (path?: string): MediaType => {
+  const normalized = normalizeImagePath(path ?? '').toLowerCase()
+
+  if (/\.(mp4|mov|webm)$/.test(normalized)) return 'video'
+  if (/\.pdf$/.test(normalized)) return 'pdf'
+
+  return 'image'
+}
+
+const getTimestampFromPath = (path: string) => {
+  const fileName = normalizeImagePath(path).split('/').pop() ?? ''
+  const timestamp = fileName.match(/^(\d{10,})-/)?.[1]
+
+  return timestamp ? Number(timestamp) : null
+}
+
+const getGallerySortValue = (item: GalleryItem) => {
+  return item.modifiedAt ?? getTimestampFromPath(item.image) ?? item.id
+}
+
+const sortGalleryItemsNewestFirst = (items: GalleryItem[]) => {
+  return [...items].sort((a, b) => {
+    const sortDifference = getGallerySortValue(b) - getGallerySortValue(a)
+    if (sortDifference !== 0) return sortDifference
+
+    return normalizeImagePath(b.image).localeCompare(normalizeImagePath(a.image), 'tr')
+  })
 }
 
 const buildFolderGalleryItems = (
@@ -115,6 +149,8 @@ const buildFolderGalleryItems = (
             : 'Moments',
     image: `/gallery/${folder}/${fileEntry.name}`,
     hash: fileEntry.hash,
+    modifiedAt: fileEntry.modifiedAt,
+    mediaType: fileEntry.mediaType ?? getMediaTypeFromPath(fileEntry.name),
   }))
 }
 
@@ -156,15 +192,10 @@ const defaultGalleryItems: GalleryItem[] = [
 
 const mergeGalleryItems = (baseItems: GalleryItem[], storedItems: GalleryItem[]) => {
   const merged = new Map<string, GalleryItem>()
-  const seenImagePaths = new Set<string>()
-  const seenHashes = new Set<string>()
+  const imageKeys = new Map<string, string>()
+  const hashKeys = new Map<string, string>()
 
-  const getItemKey = (item: GalleryItem) => {
-    const image = normalizeImagePath(remapGalleryImagePath(item.image))
-    return item.hash ?? image
-  }
-
-  baseItems.forEach((item) => {
+  const addItem = (item: GalleryItem) => {
     const image = normalizeImagePath(remapGalleryImagePath(item.image))
     if (!image) return
 
@@ -172,55 +203,48 @@ const mergeGalleryItems = (baseItems: GalleryItem[], storedItems: GalleryItem[])
       return
     }
 
-    const key = getItemKey(item)
-    if (seenImagePaths.has(image) || (item.hash && seenHashes.has(item.hash))) {
-      return
-    }
-
+    const existingKey = imageKeys.get(image) ?? (item.hash ? hashKeys.get(item.hash) : undefined)
     const category = resolveCategory(item, image)
+    const mediaType = item.mediaType ?? getMediaTypeFromPath(image)
 
-    merged.set(key, {
-      ...item,
-      image,
-      category,
-      title: category === 'Moments' ? 'memories last forever' : item.title,
-    })
-    seenImagePaths.add(image)
-    if (item.hash) {
-      seenHashes.add(item.hash)
-    }
-  })
+    if (existingKey) {
+      const currentItem = merged.get(existingKey)
+      if (!currentItem) return
 
-  storedItems.forEach((item) => {
-    const image = normalizeImagePath(remapGalleryImagePath(item.image))
-    if (!image) return
+      const newestModifiedAt = Math.max(currentItem.modifiedAt ?? 0, item.modifiedAt ?? 0)
 
-    if (removedGalleryImages.has(image)) {
+      merged.set(existingKey, {
+        ...currentItem,
+        hash: currentItem.hash ?? item.hash,
+        modifiedAt: newestModifiedAt > 0 ? newestModifiedAt : currentItem.modifiedAt ?? item.modifiedAt,
+        mediaType: currentItem.mediaType ?? mediaType,
+      })
+      imageKeys.set(image, existingKey)
+      if (item.hash) {
+        hashKeys.set(item.hash, existingKey)
+      }
       return
     }
 
-    // Keep canonical defaults when the same image already exists.
     const key = item.hash ?? image
 
-    if (merged.has(key) || seenImagePaths.has(image) || (item.hash && seenHashes.has(item.hash))) {
-      return
-    }
-
-    const category = resolveCategory(item, image)
-
     merged.set(key, {
       ...item,
       image,
-      title: category === 'Moments' ? 'memories last forever' : item.title,
       category,
+      title: category === 'Moments' ? 'memories last forever' : item.title,
+      mediaType,
     })
-    seenImagePaths.add(image)
+    imageKeys.set(image, key)
     if (item.hash) {
-      seenHashes.add(item.hash)
+      hashKeys.set(item.hash, key)
     }
-  })
+  }
 
-  return Array.from(merged.values())
+  baseItems.forEach(addItem)
+  storedItems.forEach(addItem)
+
+  return sortGalleryItemsNewestFirst(Array.from(merged.values()))
 }
 
 export default function GalleryPage() {
@@ -303,6 +327,9 @@ export default function GalleryPage() {
     return imagePath ? rotatedImagePaths.has(normalizeImagePath(imagePath)) : false
   }
 
+  const selectedItem = selectedImage !== null ? filteredItems[selectedImage] : null
+  const selectedMediaType = selectedItem ? selectedItem.mediaType ?? getMediaTypeFromPath(selectedItem.image) : 'image'
+
   return (
     <div className="min-h-screen pt-28 px-6 pb-20">
       <div className="max-w-7xl mx-auto">
@@ -352,17 +379,18 @@ export default function GalleryPage() {
                 animate={{ opacity: 1, y: 0 }}
                 className="col-span-full rounded-3xl border border-dashed border-[color:var(--stroke)] bg-white/70 p-10 text-center"
               >
-                <p className="text-xl font-semibold mb-2">No photos yet</p>
+                <p className="text-xl font-semibold mb-2">No media yet</p>
                 <p className="text-[color:var(--muted)]">
                   {activeFolder
-                    ? `Add images to public/gallery/${activeFolder} and they will appear here.`
-                    : 'Add images in gallery categories and they will appear here.'}
+                    ? `Add media to public/gallery/${activeFolder} and it will appear here.`
+                    : 'Add media in gallery categories and it will appear here.'}
                 </p>
               </motion.div>
             ) : (
               filteredItems.map((item, index) => (
                 (() => {
                   const isRotated = shouldRotateImage(item.image)
+                  const mediaType = item.mediaType ?? getMediaTypeFromPath(item.image)
                   return (
                 <motion.div
                   key={item.id}
@@ -376,16 +404,36 @@ export default function GalleryPage() {
                   className="group relative aspect-square rounded-2xl overflow-hidden cursor-pointer bg-white border border-[color:var(--stroke)]"
                 >
                   <div className="absolute inset-0 bg-[color:var(--accent-soft)]">
-                    <img
-                      src={toImageSrc(item.image)}
-                      alt={item.title}
-                      className={isRotated
-                        ? 'h-full w-full object-contain -rotate-90 scale-[0.82]'
-                        : 'h-full w-full object-cover transition-transform duration-500 group-hover:scale-105'}
-                      onError={(event) => {
-                        event.currentTarget.style.display = 'none'
-                      }}
-                    />
+                    {mediaType === 'video' ? (
+                      <>
+                        <video
+                          src={toImageSrc(item.image)}
+                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          muted
+                          playsInline
+                          preload="metadata"
+                        />
+                        <div className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur-sm">
+                          <PlayCircle size={18} />
+                        </div>
+                      </>
+                    ) : mediaType === 'pdf' ? (
+                      <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-white/75 p-6 text-[color:var(--ink)]">
+                        <FileText size={44} />
+                        <p className="text-center text-sm font-semibold break-words">{item.title}</p>
+                      </div>
+                    ) : (
+                      <img
+                        src={toImageSrc(item.image)}
+                        alt={item.title}
+                        className={isRotated
+                          ? 'h-full w-full object-contain -rotate-90 scale-[0.82]'
+                          : 'h-full w-full object-cover transition-transform duration-500 group-hover:scale-105'}
+                        onError={(event) => {
+                          event.currentTarget.style.display = 'none'
+                        }}
+                      />
+                    )}
                   </div>
 
                   {/* Overlay */}
@@ -407,7 +455,7 @@ export default function GalleryPage() {
 
         {/* Simple Lightbox */}
         <AnimatePresence>
-          {selectedImage !== null && (
+          {selectedItem && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -423,16 +471,32 @@ export default function GalleryPage() {
                 onClick={(event) => event.stopPropagation()}
               >
                 <div className="relative h-[78vh] max-h-[820px] bg-[color:var(--accent-soft)] rounded-2xl flex items-center justify-center overflow-hidden">
-                  <img
-                    src={toImageSrc(filteredItems[selectedImage]?.image)}
-                    alt={filteredItems[selectedImage]?.title ?? 'Gallery image'}
-                    className={shouldRotateImage(filteredItems[selectedImage]?.image)
-                      ? 'h-full w-full object-contain -rotate-90 scale-[0.9] rounded-2xl'
-                      : 'h-full w-full object-contain rounded-2xl'}
-                    onError={(event) => {
-                      event.currentTarget.style.display = 'none'
-                    }}
-                  />
+                  {selectedMediaType === 'video' ? (
+                    <video
+                      src={toImageSrc(selectedItem.image)}
+                      className="h-full w-full rounded-2xl object-contain"
+                      controls
+                      autoPlay
+                      playsInline
+                    />
+                  ) : selectedMediaType === 'pdf' ? (
+                    <iframe
+                      src={toImageSrc(selectedItem.image)}
+                      title={selectedItem.title}
+                      className="h-full w-full rounded-2xl bg-white"
+                    />
+                  ) : (
+                    <img
+                      src={toImageSrc(selectedItem.image)}
+                      alt={selectedItem.title}
+                      className={shouldRotateImage(selectedItem.image)
+                        ? 'h-full w-full object-contain -rotate-90 scale-[0.9] rounded-2xl'
+                        : 'h-full w-full object-contain rounded-2xl'}
+                      onError={(event) => {
+                        event.currentTarget.style.display = 'none'
+                      }}
+                    />
+                  )}
 
                   <button
                     type="button"
@@ -462,12 +526,10 @@ export default function GalleryPage() {
                   </button>
                 </div>
                 <p className="text-white text-center mt-4 text-xl font-semibold">
-                  {filteredItems[selectedImage]?.title}
+                  {selectedItem.title}
                 </p>
                 <p className="text-gray-400 text-center mt-2">
-                  {filteredItems[selectedImage]?.image
-                    ? resolveCategory(filteredItems[selectedImage], filteredItems[selectedImage].image)
-                    : ''}
+                  {resolveCategory(selectedItem, selectedItem.image)}
                 </p>
               </motion.div>
             </motion.div>

@@ -41,7 +41,7 @@ export default function GitHubActivity() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ scale: 1.02 }}
-      className="card p-6"
+      className="card p-5 sm:p-6"
     >
       <div className="flex items-center space-x-3 mb-4">
         <Github className="text-[color:var(--accent-strong)]" size={24} />

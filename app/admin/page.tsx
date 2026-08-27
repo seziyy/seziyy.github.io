@@ -2,8 +2,8 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
-import { Plus, Trash2, Pencil, LogOut, Upload } from 'lucide-react'
-import { projects as initialProjectData } from '@/app/projects/projectsData'
+import { FileText, PlayCircle, Plus, Trash2, Pencil, LogOut, Upload } from 'lucide-react'
+import { projects as initialProjectData, requiredProjectSlugs } from '@/app/projects/projectsData'
 import type { Project as PortfolioProject } from '@/app/projects/projectsData'
 import {
   PROJECTS_STORAGE_KEY,
@@ -12,6 +12,7 @@ import {
 } from '@/app/projects/projectClientUtils'
 
 const ADMIN_PASSWORD = 'admin123'
+const GALLERY_STORAGE_KEY = 'admin-gallery'
 
 type ProjectDraft = {
   slug: string
@@ -43,11 +44,21 @@ type GalleryItem = {
   title: string
   category: string
   image: string
+  modifiedAt?: number
+  mediaType?: GalleryMediaType
 }
 
 type TabKey = 'projects' | 'blog' | 'gallery'
 type GalleryCategory = 'drawings' | 'designs' | 'notes' | 'moments'
-type GalleryAllResponse = { files?: { path: string; name: string }[] }
+type GalleryMediaType = 'image' | 'video' | 'pdf'
+type GalleryAllResponse = {
+  files?: {
+    path: string
+    name: string
+    modifiedAt?: number
+    mediaType?: GalleryMediaType
+  }[]
+}
 
 const initialProjects: PortfolioProject[] = initialProjectData
 
@@ -85,6 +96,15 @@ const toFileTitle = (fileName: string) => {
 
 const toImageSrc = (src?: string) => {
   return src ? encodeURI(src) : ''
+}
+
+const getMediaTypeFromPath = (path?: string): GalleryMediaType => {
+  const normalized = path?.trim().toLowerCase() ?? ''
+
+  if (/\.(mp4|mov|webm)$/.test(normalized)) return 'video'
+  if (/\.pdf$/.test(normalized)) return 'pdf'
+
+  return 'image'
 }
 
 export default function AdminPage() {
@@ -154,7 +174,7 @@ export default function AdminPage() {
       if (Array.isArray(parsedProjects)) {
         const { projects: sanitizedProjects, changed } = sanitizeStoredProjects(parsedProjects, {
           fallbackProjects: initialProjects,
-          ensureSlugs: ['wallet-guardai'],
+          ensureSlugs: requiredProjectSlugs,
         })
 
         setProjects(sanitizedProjects)
@@ -173,7 +193,7 @@ export default function AdminPage() {
 
     const { projects: sanitizedProjects } = sanitizeStoredProjects(projects, {
       fallbackProjects: initialProjects,
-      ensureSlugs: ['wallet-guardai'],
+      ensureSlugs: requiredProjectSlugs,
     })
 
     window.localStorage.setItem(PROJECTS_STORAGE_KEY, JSON.stringify(sanitizedProjects))
@@ -201,6 +221,8 @@ export default function AdminPage() {
           title: toFileTitle(entry.name) || `Photo ${index + 1}`,
           category: getGalleryCategoryFromPath(entry.path),
           image: `/gallery/${entry.path}`,
+          modifiedAt: entry.modifiedAt,
+          mediaType: entry.mediaType ?? getMediaTypeFromPath(entry.path),
         }))
 
         setGallery(nextGallery)
@@ -213,6 +235,12 @@ export default function AdminPage() {
 
     void loadGallery()
   }, [isAuthed])
+
+  useEffect(() => {
+    if (!isAuthed) return
+
+    window.localStorage.setItem(GALLERY_STORAGE_KEY, JSON.stringify(gallery))
+  }, [gallery, isAuthed])
 
   const stats = useMemo(() => {
     return [
@@ -295,6 +323,8 @@ export default function AdminPage() {
         title: files[0].name.split('.')[0],
         category: galleryCategoryLabel[uploadingCategory],
         image: data.path,
+        modifiedAt: data.modifiedAt ?? Date.now(),
+        mediaType: data.mediaType ?? getMediaTypeFromPath(data.path),
       })
 
       setGallery((prev) => {
@@ -308,6 +338,8 @@ export default function AdminPage() {
             title: files[0].name.split('.')[0],
             category: galleryCategoryLabel[uploadingCategory],
             image: data.path,
+            modifiedAt: data.modifiedAt ?? Date.now(),
+            mediaType: data.mediaType ?? getMediaTypeFromPath(data.path),
           },
           ...prev,
         ]
@@ -367,7 +399,7 @@ export default function AdminPage() {
     if (projectEditingId) {
       setProjects((prev) => prev.map((item) => (item.id === projectEditingId ? nextProject : item)))
     } else {
-      setProjects((prev) => [...prev, nextProject])
+      setProjects((prev) => [nextProject, ...prev])
     }
     resetProjectDraft()
   }
@@ -380,7 +412,7 @@ export default function AdminPage() {
       )
     } else {
       const nextId = blogs.length ? Math.max(...blogs.map((b) => b.id)) + 1 : 1
-      setBlogs((prev) => [...prev, { id: nextId, ...blogDraft }])
+      setBlogs((prev) => [{ id: nextId, ...blogDraft }, ...prev])
     }
     resetBlogDraft()
   }
@@ -398,7 +430,15 @@ export default function AdminPage() {
       )
     } else {
       const nextId = gallery.length ? Math.max(...gallery.map((g) => g.id)) + 1 : 1
-      setGallery((prev) => [...prev, { id: nextId, ...galleryDraft }])
+      setGallery((prev) => [
+        {
+          id: nextId,
+          ...galleryDraft,
+          modifiedAt: Date.now(),
+          mediaType: getMediaTypeFromPath(galleryDraft.image),
+        },
+        ...prev,
+      ])
     }
     resetGalleryDraft()
   }
@@ -826,7 +866,7 @@ export default function AdminPage() {
           <section className="mt-8 grid gap-6 lg:grid-cols-[1fr,1.2fr]">
             <div className="card p-6 space-y-8">
               <div>
-                <h2 className="text-xl font-semibold">Fotograf yukle</h2>
+                <h2 className="text-xl font-semibold">Medya yukle</h2>
                 <div className="mt-4 space-y-3">
                   {galleryLoading && <p className="text-sm text-[color:var(--muted)]">Galeri yukleniyor...</p>}
                   {galleryError && <p className="text-sm text-red-600">{galleryError}</p>}
@@ -847,15 +887,15 @@ export default function AdminPage() {
                     <label className="cursor-pointer block">
                       <input
                         type="file"
-                        accept="image/*"
+                        accept="image/*,video/*,application/pdf"
                         onChange={handleGalleryUpload}
                         disabled={uploading}
                         className="hidden"
                       />
                       <div className="flex flex-col items-center gap-2">
                         <Upload size={24} className="text-[color:var(--muted)]" />
-                        <p className="text-sm font-medium">Fotograf sec</p>
-                        <p className="text-xs text-[color:var(--muted)]">JPG, PNG, WebP vb.</p>
+                        <p className="text-sm font-medium">Medya sec</p>
+                        <p className="text-xs text-[color:var(--muted)]">JPG, PNG, WebP, MP4, MOV, PDF vb.</p>
                       </div>
                     </label>
                   </div>
@@ -864,7 +904,20 @@ export default function AdminPage() {
                   {galleryDraft.image && (
                     <div className="bg-[color:var(--accent-soft)] p-3 rounded-lg">
                       <p className="text-xs text-[color:var(--muted)] mb-1">Yuklenecek: {galleryDraft.image}</p>
-                      <img src={toImageSrc(galleryDraft.image)} alt="preview" className="w-full max-h-48 object-cover rounded" />
+                      {(galleryDraft.mediaType ?? getMediaTypeFromPath(galleryDraft.image)) === 'video' ? (
+                        <video
+                          src={toImageSrc(galleryDraft.image)}
+                          className="w-full max-h-48 rounded object-cover"
+                          controls
+                        />
+                      ) : (galleryDraft.mediaType ?? getMediaTypeFromPath(galleryDraft.image)) === 'pdf' ? (
+                        <div className="flex h-32 flex-col items-center justify-center gap-2 rounded bg-white/70 text-[color:var(--ink)]">
+                          <FileText size={28} />
+                          <span className="text-sm font-medium">PDF</span>
+                        </div>
+                      ) : (
+                        <img src={toImageSrc(galleryDraft.image)} alt="preview" className="w-full max-h-48 object-cover rounded" />
+                      )}
                     </div>
                   )}
                 </div>
@@ -936,8 +989,23 @@ export default function AdminPage() {
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <h3 className="text-lg font-semibold">{item.title}</h3>
-                      <p className="text-sm text-[color:var(--muted)] mt-1">{item.category}</p>
+                      <p className="text-sm text-[color:var(--muted)] mt-1">
+                        {item.category} / {item.mediaType ?? getMediaTypeFromPath(item.image)}
+                      </p>
                       <p className="text-xs text-[color:var(--muted)] mt-2">{item.image}</p>
+                    </div>
+                    <div className="h-16 w-24 shrink-0 overflow-hidden rounded-lg border border-[color:var(--stroke)] bg-[color:var(--accent-soft)]">
+                      {(item.mediaType ?? getMediaTypeFromPath(item.image)) === 'video' ? (
+                        <div className="flex h-full w-full items-center justify-center bg-black/70 text-white">
+                          <PlayCircle size={22} />
+                        </div>
+                      ) : (item.mediaType ?? getMediaTypeFromPath(item.image)) === 'pdf' ? (
+                        <div className="flex h-full w-full items-center justify-center bg-white/70 text-[color:var(--ink)]">
+                          <FileText size={22} />
+                        </div>
+                      ) : (
+                        <img src={toImageSrc(item.image)} alt="" className="h-full w-full object-cover" />
+                      )}
                     </div>
                     <div className="flex items-center gap-2">
                       <button

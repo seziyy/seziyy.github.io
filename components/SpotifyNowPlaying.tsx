@@ -180,7 +180,7 @@ export default function SpotifyNowPlaying() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ scale: 1.02 }}
-      className="card p-6"
+      className="card p-5 sm:p-6"
     >
       <div className="flex items-center space-x-3 mb-4">
         <Music className="text-[color:var(--accent)]" size={24} />
@@ -226,7 +226,7 @@ export default function SpotifyNowPlaying() {
           <div className="w-16 h-16 rounded-lg bg-[color:var(--accent-soft)] flex items-center justify-center">
             <Music className="text-[color:var(--accent-strong)]" size={24} />
           </div>
-          <div className="flex-1">
+          <div className="min-w-0 flex-1">
             {data?.source === 'recently_played' && (
               <p className="text-[10px] uppercase tracking-[0.16em] text-[color:var(--muted)] mb-1">
                 Last listened

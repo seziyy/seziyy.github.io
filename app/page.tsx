@@ -28,18 +28,18 @@ const prompts = [
 export default function Home() {
   return (
     <div className="min-h-screen">
-      <section className="pt-28 pb-16 px-6">
-        <div className="max-w-6xl mx-auto grid gap-10 lg:grid-cols-[1.2fr,0.8fr] items-start">
+      <section className="px-4 pb-12 pt-24 sm:px-6 sm:pb-16 sm:pt-28">
+        <div className="mx-auto grid max-w-6xl items-start gap-8 lg:grid-cols-[1.2fr,0.8fr] lg:gap-10">
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
           >
             <p className="uppercase tracking-[0.2em] text-xs text-[color:var(--muted)]">Software Engineer</p>
-            <h1 className="mt-4 text-5xl md:text-7xl font-display">
+            <h1 className="mt-4 max-w-4xl text-4xl font-display leading-[1.02] text-balance sm:text-5xl md:text-6xl lg:text-7xl">
               You can call me Hale or Meowseziyy?
             </h1>
-            <p className="mt-6 text-lg text-[color:var(--muted)] max-w-xl">
+            <p className="mt-5 max-w-xl text-base leading-7 text-[color:var(--muted)] sm:mt-6 sm:text-lg sm:leading-8">
               Full stack developer with hands-on experience in frontend, mobile, backend, and blockchain  actively building since 2nd year of university.
               <br />
               <br />
@@ -51,23 +51,21 @@ export default function Home() {
               <br />
               🌍 Based in Antalya, Turkey 
             </p>
-            <div className="mt-8 flex flex-wrap gap-4">
-            </div>
           </motion.div>
 
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.1 }}
-            className="card p-6"
+            className="card p-5 sm:p-6"
           >
             <div className="flex items-center gap-4">
-              <div className="h-16 w-16 rounded-full bg-[color:var(--accent-soft)] flex items-center justify-center text-[color:var(--accent-strong)] font-display text-xl">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[color:var(--accent-soft)] text-lg text-[color:var(--accent-strong)] font-display sm:h-16 sm:w-16 sm:text-xl">
                 HS
               </div>
-              <div>
+              <div className="min-w-0">
                 <p className="text-sm text-[color:var(--muted)]">Currently</p>
-                <p className="text-lg font-semibold">Building product-led experiences</p>
+                <p className="text-base font-semibold leading-snug sm:text-lg">Building product-led experiences</p>
               </div>
             </div>
             <div className="mt-6">
@@ -83,16 +81,16 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="px-6 pb-16">
-        <div className="max-w-6xl mx-auto grid gap-6 lg:grid-cols-2">
-          <div className="card p-6">
+      <section className="px-4 pb-12 sm:px-6 sm:pb-16">
+        <div className="mx-auto grid max-w-6xl gap-4 sm:gap-6 lg:grid-cols-2">
+          <div className="card p-5 sm:p-6">
             <h2 className="text-2xl font-display">Latest Project</h2>
             <p className="mt-3 text-[color:var(--muted)]">{latestProject.description}</p>
             <a href={latestProject.link} target="_blank" rel="noopener noreferrer" className="inline-flex mt-5 text-sm font-semibold link">
               {latestProject.title} →
             </a>
           </div>
-          <div className="card p-6">
+          <div className="card p-5 sm:p-6">
             <h2 className="text-2xl font-display">Latest Blog</h2>
             <p className="mt-3 text-[color:var(--muted)]">{latestBlog.description}</p>
             <a
@@ -107,26 +105,26 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="px-6 pb-16">
-        <div className="max-w-6xl mx-auto grid gap-6 lg:grid-cols-[1.1fr,0.9fr]">
+      <section className="px-4 pb-12 sm:px-6 sm:pb-16">
+        <div className="mx-auto grid max-w-6xl gap-4 sm:gap-6 lg:grid-cols-[1.1fr,0.9fr]">
           <AboutSection />
-          <div className="space-y-6">
+          <div className="space-y-4 sm:space-y-6">
             <SpotifyNowPlaying />
             <GitHubActivity />
           </div>
         </div>
       </section>
 
-      <section className="px-6 pb-16">
-        <div className="max-w-6xl mx-auto card p-8">
+      <section className="px-4 pb-12 sm:px-6 sm:pb-16">
+        <div className="card mx-auto max-w-6xl p-5 sm:p-8">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
-              <h2 className="text-3xl font-display">How can I help you?</h2>
+              <h2 className="text-2xl font-display sm:text-3xl">How can I help you?</h2>
               <p className="mt-2 text-[color:var(--muted)]">Quick prompts to start a conversation.</p>
             </div>
             <a
               href="/#contact"
-              className="px-5 py-3 rounded-full bg-[color:var(--accent)] text-white font-semibold"
+              className="inline-flex w-full justify-center rounded-full bg-[color:var(--accent)] px-5 py-3 font-semibold text-white sm:w-auto"
             >
               Get in touch
             </a>
@@ -142,18 +140,18 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="contact" className="px-6 pb-20">
-        <div className="max-w-6xl mx-auto">
+      <section id="contact" className="scroll-mt-24 px-4 pb-16 sm:px-6 sm:pb-20">
+        <div className="mx-auto max-w-6xl">
           <div className="mb-8">
             <p className="uppercase tracking-[0.2em] text-xs text-[color:var(--muted)]">Contact</p>
-            <h2 className="mt-3 text-4xl font-display">Let's Connect</h2>
+            <h2 className="mt-3 text-3xl font-display sm:text-4xl">Let's Connect</h2>
           </div>
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <a
               href="https://www.linkedin.com/in/hale-sezin-%C3%B6-1b5aa9254/"
               target="_blank"
               rel="noopener noreferrer"
-              className="card p-6 hover:border-[color:var(--accent)] transition-colors"
+              className="card p-5 transition-colors hover:border-[color:var(--accent)] sm:p-6"
             >
               <p className="font-semibold">LinkedIn</p>
               <p className="text-sm text-[color:var(--muted)] mt-2">Connect professionally</p>
@@ -162,14 +160,14 @@ export default function Home() {
               href="https://x.com/meowseziyy"
               target="_blank"
               rel="noopener noreferrer"
-              className="card p-6 hover:border-[color:var(--accent)] transition-colors"
+              className="card p-5 transition-colors hover:border-[color:var(--accent)] sm:p-6"
             >
               <p className="font-semibold">X (Twitter)</p>
               <p className="text-sm text-[color:var(--muted)] mt-2">Follow my thoughts</p>
             </a>
             <a
               href="mailto:halesezin@gmail.com"
-              className="card p-6 hover:border-[color:var(--accent)] transition-colors"
+              className="card p-5 transition-colors hover:border-[color:var(--accent)] sm:p-6"
             >
               <p className="font-semibold">Email</p>
               <p className="text-sm text-[color:var(--muted)] mt-2">Direct message</p>
@@ -178,7 +176,7 @@ export default function Home() {
               href="https://github.com/seziyy"
               target="_blank"
               rel="noopener noreferrer"
-              className="card p-6 hover:border-[color:var(--accent)] transition-colors"
+              className="card p-5 transition-colors hover:border-[color:var(--accent)] sm:p-6"
             >
               <p className="font-semibold">GitHub</p>
               <p className="text-sm text-[color:var(--muted)] mt-2">Check my code</p>
@@ -187,7 +185,7 @@ export default function Home() {
               href="https://medium.com/@halesezin"
               target="_blank"
               rel="noopener noreferrer"
-              className="card p-6 hover:border-[color:var(--accent)] transition-colors"
+              className="card p-5 transition-colors hover:border-[color:var(--accent)] sm:p-6"
             >
               <p className="font-semibold">Medium</p>
               <p className="text-sm text-[color:var(--muted)] mt-2">Read my articles</p>
@@ -196,7 +194,7 @@ export default function Home() {
               href="https://www.instagram.com/seziyy"
               target="_blank"
               rel="noopener noreferrer"
-              className="card p-6 hover:border-[color:var(--accent)] transition-colors"
+              className="card p-5 transition-colors hover:border-[color:var(--accent)] sm:p-6"
             >
               <p className="font-semibold">Instagram</p>
               <p className="text-sm text-[color:var(--muted)] mt-2">Daily updates</p>

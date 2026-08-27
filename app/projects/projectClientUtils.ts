@@ -20,6 +20,8 @@ export const sanitizeStoredProjects = (
   options: SanitizeOptions = {}
 ) => {
   const { fallbackProjects = [], ensureSlugs = [] } = options
+  const fallbackBySlug = new Map(fallbackProjects.map((project) => [project.slug, project]))
+  const ensuredSlugSet = new Set(ensureSlugs.map((slug) => slug.trim().toLowerCase()).filter(Boolean))
   const seen = new Set<string>()
   const unique: Project[] = []
 
@@ -27,11 +29,17 @@ export const sanitizeStoredProjects = (
     const normalizedSlug = project.slug.trim().toLowerCase()
     if (!normalizedSlug || seen.has(normalizedSlug)) continue
 
+    const fallbackProject = fallbackBySlug.get(normalizedSlug)
+
     seen.add(normalizedSlug)
     unique.push({
       ...project,
       slug: normalizedSlug,
-      image: normalizeImagePath(project.image),
+      image: normalizeImagePath(
+        fallbackProject && ensuredSlugSet.has(normalizedSlug)
+          ? fallbackProject.image
+          : project.image
+      ),
     })
   }
 

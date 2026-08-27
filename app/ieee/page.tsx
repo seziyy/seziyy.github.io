@@ -21,7 +21,7 @@ const ieeeEvents: IEEEEvent[] = [
     date: '16 Oct',
     location: 'Mugla',
     track: 'CS',
-    summary: 'An introductory session focused on algorithmic thinking, problem decomposition, and practical examples for beginners.',
+    summary: 'Prepared together with Yigit, this introductory session explored what algorithms are and why algorithmic thinking is an essential starting point for anyone beginning a technical career.',
     images: ['/ieee/algoritma101.jfif'],
   },
   {
@@ -30,7 +30,7 @@ const ieeeEvents: IEEEEvent[] = [
     date: '6 Nov',
     location: 'Mugla',
     track: 'CS',
-    summary: 'A fundamentals workshop covering Python syntax, control flow, and clean coding habits.',
+    summary: 'After inviting our instructor to open the series, we held the first Python session as a strong foundation before continuing the program through peer-led learning.',
     images: ['/ieee/python101.jfif'],
   },
   {
@@ -39,7 +39,7 @@ const ieeeEvents: IEEEEvent[] = [
     date: '3 Dec',
     location: 'Mugla',
     track: 'CS',
-    summary: 'A continuation of Python 101 with deeper practice on functions, collections, and mini exercises.',
+    summary: 'A peer-led continuation of our Python series, focused on strengthening the basics through shared practice, examples, and collaborative learning.',
     images: ['/ieee/python101-2.jfif'],
   },
   {
@@ -48,7 +48,7 @@ const ieeeEvents: IEEEEvent[] = [
     date: 'TBA',
     location: 'Mugla',
     track: 'CS',
-    summary: 'An advanced follow-up session that builds on Python 102 with more practice and stronger coding patterns.',
+    summary: 'The third session of our Python learning series, carried forward with peer teaching to help participants build confidence through hands-on practice.',
     images: ['/ieee/python103.jfif'],
   },
   {
@@ -57,7 +57,7 @@ const ieeeEvents: IEEEEvent[] = [
     date: '20 Dec',
     location: 'Mugla',
     track: 'CS',
-    summary: 'A high-energy technical meetup bringing students together around CS topics and collaboration.',
+    summary: 'Organized as my first major event as CS Chair, CS PEAK brought together talks on software, informatics, blockchain, no-code tools, and artificial intelligence in a full-day conference at AKM Hall C with the IEEE MSKU team.',
     images: ['/ieee/cspeak1.jfif', '/ieee/cspeak2.jfif', '/ieee/cspeak3.jfif'],
   },
   {
@@ -66,7 +66,7 @@ const ieeeEvents: IEEEEvent[] = [
     date: '2 Feb',
     location: 'Mugla',
     track: 'CS',
-    summary: 'An introduction to cybersecurity concepts, common threats, and security-first thinking.',
+    summary: 'Held during the school break, Cyber 101 was designed to keep our learning momentum alive through an introductory cybersecurity training focused on awareness, threats, and security-first thinking.',
     images: ['/ieee/siber.jfif'],
   },
   {
@@ -75,7 +75,7 @@ const ieeeEvents: IEEEEvent[] = [
     date: '24 Feb',
     location: 'Mugla',
     track: 'CS',
-    summary: 'A creative session on visual communication basics, layout principles, and digital design workflow.',
+    summary: 'A creative and high-quality graphic design workshop led by a photographer friend I met through an event, where participants explored visual design and created impressive work of their own.',
     images: ['/ieee/grafik.jfif'],
   },
   {
@@ -84,7 +84,7 @@ const ieeeEvents: IEEEEvent[] = [
     date: '6 Mar',
     location: 'Mugla',
     track: 'CS',
-    summary: 'A conversational event sharing real-world experiences from startup and technopark environments.',
+    summary: 'A career-focused session featuring my friend Cem as the speaker, followed by my own reflections on a 9-month volunteer internship experience and the lessons I gained along the way.',
     images: ['/ieee/technodays.jfif'],
   },
   {
@@ -93,7 +93,7 @@ const ieeeEvents: IEEEEvent[] = [
     date: '22 Apr',
     location: 'Mugla',
     track: 'Community',
-    summary: 'A community-focused gathering to discuss goals, growth, and student engagement opportunities.',
+    summary: 'Together with the MSKU Executive Board President and Vice President, we visited Mayor Gonca to share our upcoming technology and engineering initiatives and invite her to our event.',
     images: ['/ieee/gonca.jfif'],
   },
   {
@@ -102,7 +102,7 @@ const ieeeEvents: IEEEEvent[] = [
     date: '3-4 May',
     location: 'Mugla',
     track: 'Career',
-    summary: 'A two-day career event connecting students with professionals and practical career insights.',
+    summary: 'We completed Kariyer-In Mugla, one of our signature events, as a two-day organization with valuable speakers, informative sessions at AKM on the first day, and a small team trip to Marmaris on the second.',
     images: ['/ieee/kariyerin25.jfif'],
   },
   {
@@ -111,7 +111,7 @@ const ieeeEvents: IEEEEvent[] = [
     date: '21 May',
     location: 'Mugla',
     track: 'CS',
-    summary: 'A celebratory CS event featuring talks, sharing sessions, and community networking moments.',
+    summary: 'To thank my team for their dedication throughout the year, I organized a warm and joyful barbecue event where we celebrated our work, friendship, and team spirit.',
     images: ['/ieee/csday.jfif'],
   },
 ]

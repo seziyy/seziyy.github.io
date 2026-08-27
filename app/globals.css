@@ -2,34 +2,47 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+  scrollbar-gutter: stable;
+}
+
 :root {
   --paper: #f7f2ea;
   --ink: #171512;
   --muted: #6a655d;
-  --accent: #0c7c59;
-  --accent-strong: #0b5f46;
-  --accent-soft: #e2f3ed;
+  --accent: #5d675f;
+  --accent-strong: #39413d;
+  --accent-soft: #d1d3cc;
   --card: #fff9f0;
   --stroke: #eadfce;
   --shadow: 0 28px 60px rgba(21, 18, 15, 0.08);
 }
 
 body {
+  min-height: 100vh;
+  min-height: 100svh;
   color: var(--ink);
   background: var(--paper);
   font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  overflow-x: clip;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 .app-shell {
   min-height: 100vh;
+  min-height: 100svh;
   position: relative;
-  overflow-x: hidden;
+  overflow-x: clip;
+  isolation: isolate;
 }
 
 .app-shell::before,
 .app-shell::after {
   content: '';
-  position: absolute;
+  position: fixed;
   width: 520px;
   height: 520px;
   border-radius: 999px;
@@ -42,7 +55,7 @@ body {
 .app-shell::before {
   top: -140px;
   left: -80px;
-  background: radial-gradient(circle, #d7f2e7 0%, rgba(215, 242, 231, 0) 70%);
+  background: radial-gradient(circle, #d4d5ce 0%, rgba(212, 213, 206, 0) 70%);
 }
 
 .app-shell::after {
@@ -54,17 +67,18 @@ body {
 main {
   position: relative;
   z-index: 1;
+  min-width: 0;
 }
 
 .font-display {
   font-family: var(--font-display), Georgia, serif;
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
 }
 
 .card {
   background: var(--card);
   border: 1px solid var(--stroke);
-  border-radius: 24px;
+  border-radius: 16px;
   box-shadow: var(--shadow);
 }
 

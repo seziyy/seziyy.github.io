@@ -1,6 +1,7 @@
-import { writeFile, mkdir, unlink } from 'fs/promises'
+import { writeFile, mkdir, unlink, stat } from 'fs/promises'
 import { join } from 'path'
 import { existsSync } from 'fs'
+import { getGalleryMediaType } from '@/app/api/gallery/mediaFiles'
 
 export async function POST(request: Request) {
   try {
@@ -16,6 +17,11 @@ export async function POST(request: Request) {
       return Response.json({ error: 'Invalid category' }, { status: 400 })
     }
 
+    const mediaType = getGalleryMediaType(file.name)
+    if (!mediaType) {
+      return Response.json({ error: 'Unsupported file type' }, { status: 400 })
+    }
+
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
 
@@ -29,11 +35,14 @@ export async function POST(request: Request) {
     const filepath = join(uploadsDir, filename)
 
     await writeFile(filepath, buffer)
+    const fileStats = await stat(filepath)
 
     return Response.json({
       success: true,
       path: `/gallery/${category}/${filename}`,
       filename: filename,
+      modifiedAt: fileStats.mtimeMs,
+      mediaType,
     })
   } catch (error) {
     console.error('Upload error:', error)
