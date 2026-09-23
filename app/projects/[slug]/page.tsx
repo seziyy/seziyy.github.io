@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { ArrowLeft, ExternalLink, Github } from 'lucide-react'
 import { getProjectBySlug, projects } from '@/app/projects/projectsData'
@@ -41,11 +42,26 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
         <section className="card mt-6 overflow-hidden">
           <div className="grid lg:grid-cols-2">
             <div className="bg-[color:var(--accent-soft)] min-h-[280px] lg:min-h-full p-6 flex items-center justify-center">
-              <img
+              {project.images?.length ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-center w-full">
+                  {project.images.map((image) => (
+                    <a key={image.src} href={image.src} target="_blank" rel="noopener noreferrer" className="flex justify-center rounded-2xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[color:var(--accent)]">
+                      <Image
+                        src={image.src}
+                        alt={image.alt}
+                        width={image.width}
+                        height={image.height}
+                        sizes="(max-width: 639px) 85vw, (max-width: 1023px) 40vw, 240px"
+                        className="max-w-full max-h-[560px] w-auto h-auto object-contain rounded-2xl"
+                      />
+                    </a>
+                  ))}
+                </div>
+              ) : <img
                 src={project.image}
                 alt={`${project.title} project image`}
                 className="max-w-full max-h-[560px] w-auto h-auto object-contain"
-              />
+              />}
             </div>
 
             <div className="p-8 md:p-10">

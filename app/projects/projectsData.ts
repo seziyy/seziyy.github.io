@@ -13,6 +13,7 @@ export type Project = {
     href: string
   }[]
   image: string
+  images?: { src: string; alt: string; width: number; height: number }[]
   year: string
   role: string
   status: 'In Progress' | 'Completed'
@@ -20,6 +21,32 @@ export type Project = {
 }
 
 export const projects: Project[] = [
+  {
+    id: 106,
+    slug: 'ghostellar',
+    label: 'Stellar Payments',
+    title: 'ghoStellar',
+    shortDescription:
+      'A non-custodial P2P payment app on Stellar with expiring cheques and shared pools.',
+    description:
+      'ghoStellar explores simple, transparent payments for everyday transfers and shared expenses. Senders create time-limited cheques, recipients claim them, and unclaimed funds can be refunded after expiry. Shared pools let users deposit and withdraw testnet assets.\n\nThe project combines a Flutter mobile client, Go services, and a Soroban escrow contract on Stellar Testnet. Signing keys stay on the user’s device. The Turkish lira deposit and withdrawal flow uses a mock anchor with simulated bank transfers; real money transfers are not supported.',
+    technologies: ['Flutter', 'Dart', 'Go', 'Rust', 'Stellar', 'Soroban'],
+    github: 'https://github.com/buraksal52/ghoStellar',
+    image: '/projects/ghostellar-logo.jpg',
+    images: [
+      { src: '/projects/ghostellar-logo.jpg', alt: 'ghoStellar ghost mascot with a phone and stars', width: 1600, height: 1600 },
+      { src: '/projects/ghostellar-wallet.png', alt: 'ghoStellar mobile wallet showing the XLM balance, payment actions, and recent cheque activity', width: 1206, height: 2622 },
+    ],
+    year: '2026',
+    role: 'Project Contributor',
+    status: 'In Progress',
+    highlights: [
+      'Time-limited cheques with claim and expiry refund flows',
+      'Shared pools powered by a Soroban escrow contract',
+      'Flutter mobile interface for payments, balances, and activity',
+      'Non-custodial signing and a simulated anchor flow on Stellar Testnet',
+    ],
+  },
   {
     id: 105,
     slug: 'viral-things',
@@ -218,6 +245,7 @@ export const projects: Project[] = [
 ]
 
 export const requiredProjectSlugs = [
+  'ghostellar',
   'viral-things',
   'dead-blockchain-theory',
   'ab-c',
