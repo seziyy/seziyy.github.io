@@ -2,6 +2,9 @@ import type { Project } from '@/app/projects/projectsData'
 
 export const PROJECTS_STORAGE_KEY = 'admin-projects'
 
+// Retired built-in projects must also be removed from saved admin snapshots.
+const retiredProjectSlugs = new Set(['freelandser-freelance-platform'])
+
 export const normalizeImagePath = (value: string) => {
   const normalized = value.trim().replace(/\\/g, '/').replace(/^\/?public\//i, '/')
 
@@ -27,7 +30,7 @@ export const sanitizeStoredProjects = (
 
   for (const project of storedProjects) {
     const normalizedSlug = project.slug.trim().toLowerCase()
-    if (!normalizedSlug || seen.has(normalizedSlug)) continue
+    if (!normalizedSlug || retiredProjectSlugs.has(normalizedSlug) || seen.has(normalizedSlug)) continue
 
     const fallbackProject = fallbackBySlug.get(normalizedSlug)
 
@@ -45,7 +48,7 @@ export const sanitizeStoredProjects = (
 
   for (const slug of ensureSlugs) {
     const normalizedSlug = slug.trim().toLowerCase()
-    if (!normalizedSlug || seen.has(normalizedSlug)) continue
+    if (!normalizedSlug || retiredProjectSlugs.has(normalizedSlug) || seen.has(normalizedSlug)) continue
 
     const fallbackProject = fallbackProjects.find((project) => project.slug === normalizedSlug)
     if (!fallbackProject) continue
