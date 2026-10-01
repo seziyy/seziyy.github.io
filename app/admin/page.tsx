@@ -11,7 +11,7 @@ import {
   sanitizeStoredProjects,
 } from '@/app/projects/projectClientUtils'
 
-const ADMIN_PASSWORD = 'admin123'
+const ADMIN_PASSWORD = 'ozorman66##'
 const GALLERY_STORAGE_KEY = 'admin-gallery'
 
 type ProjectDraft = {
