@@ -158,3 +158,15 @@ Bu proje kişisel kullanım için geliştirilmiştir.
 
 **Geliştirici**: Seziyy  
 **İletişim**: [GitHub](https://github.com/seziyy)
+
+### Spotify güncellemesi durursa
+
+GitHub, herkese açık depolarda uzun süre depo etkinliği olmadığında zamanlanmış
+workflow’u devre dışı bırakabilir. Actions → Update Spotify JSON bölümünden
+workflow’u etkinleştirip **Run workflow** ile yeniden çalıştırın.
+Normal site yayınları da Spotify verisini yeniler; böylece repodaki eski JSON
+son başarılı senkronizasyonun üzerine yayımlanmaz. Spotify secrets eksik veya
+geçersizse yayın hata verir; Actions günlüklerinden kontrol edin.
+Karttaki “Last updated” verinin üretildiği zamanı gösterir. GitHub Pages üzerindeki
+veri zamanlanmış görevlerle güncellenir; beş saniyelik tarayıcı kontrolü canlı
+Spotify bağlantısı değildir. GitHub zamanlanmış görevleri geciktirebilir.

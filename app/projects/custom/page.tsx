@@ -60,8 +60,8 @@ function CustomProjectDetailPageContent() {
 
   if (!slug || !project) {
     return (
-      <div className="min-h-screen pt-28 px-6 pb-20">
-        <div className="max-w-3xl mx-auto card p-8">
+      <div className="min-h-screen px-4 pb-12 pt-24 sm:px-6 sm:pb-20 sm:pt-28">
+        <div className="max-w-3xl mx-auto card p-5 sm:p-8">
           <h1 className="text-3xl font-display">Project not found</h1>
           <p className="text-[color:var(--muted)] mt-3">
             Bu proje kaydi bulunamadi. Projeyi admin panelinden tekrar kaydedin.
@@ -79,7 +79,7 @@ function CustomProjectDetailPageContent() {
   }
 
   return (
-    <div className="min-h-screen pt-28 px-6 pb-20">
+    <div className="min-h-screen px-4 pb-12 pt-24 sm:px-6 sm:pb-20 sm:pt-28">
       <div className="max-w-6xl mx-auto">
         <Link
           href="/projects"
@@ -99,9 +99,9 @@ function CustomProjectDetailPageContent() {
               />
             </div>
 
-            <div className="p-8 md:p-10">
+            <div className="min-w-0 p-5 sm:p-8 md:p-10">
               <p className="uppercase tracking-[0.2em] text-xs text-[color:var(--muted)] mb-3">{project.label}</p>
-              <h1 className="text-4xl font-display mb-4">{project.title}</h1>
+              <h1 className="text-3xl sm:text-4xl font-display mb-4">{project.title}</h1>
               <p className="text-[color:var(--muted)] whitespace-pre-line mb-8">{project.description}</p>
 
               <div className="grid sm:grid-cols-3 gap-3 mb-8">
@@ -179,7 +179,7 @@ function CustomProjectDetailPageContent() {
         </section>
 
         <section className="mt-10 grid lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 card p-7">
+          <div className="lg:col-span-2 card p-5 sm:p-7">
             <h2 className="text-2xl font-display mb-4">What I built</h2>
             <ul className="space-y-3 text-[color:var(--muted)]">
               {project.highlights.map((highlight) => (
@@ -191,7 +191,7 @@ function CustomProjectDetailPageContent() {
             </ul>
           </div>
 
-          <div className="card p-7">
+          <div className="card p-5 sm:p-7">
             <h2 className="text-xl font-display mb-4">More projects</h2>
             <div className="space-y-3">
               {relatedProjects.map((item) => (
@@ -218,8 +218,8 @@ export default function CustomProjectDetailPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen pt-28 px-6 pb-20">
-          <div className="max-w-3xl mx-auto card p-8">
+        <div className="min-h-screen px-4 pb-12 pt-24 sm:px-6 sm:pb-20 sm:pt-28">
+          <div className="max-w-3xl mx-auto card p-5 sm:p-8">
             <p className="text-[color:var(--muted)]">Project loading...</p>
           </div>
         </div>

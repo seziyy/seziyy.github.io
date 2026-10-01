@@ -6,16 +6,16 @@ import { motion } from 'framer-motion'
 
 export default function BlockchainPage() {
   return (
-    <div className="min-h-screen pt-28 px-6 pb-20">
+    <div className="min-h-screen px-4 pb-12 pt-24 sm:px-6 sm:pb-20 sm:pt-28">
       <div className="max-w-5xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
-          className="mb-12"
+          className="mb-8 sm:mb-12"
         >
           <p className="uppercase tracking-[0.2em] text-xs text-[color:var(--muted)]">Experience</p>
-          <h1 className="text-5xl font-display mt-4 mb-4">Blockchain</h1>
+          <h1 className="text-4xl leading-tight sm:text-5xl font-display mt-3 mb-4">Blockchain</h1>
           <p className="text-[color:var(--muted)] text-lg">
             Blockchain and HALE 
           </p>
@@ -25,11 +25,11 @@ export default function BlockchainPage() {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.1 }}
-          className="card p-8 transition-transform duration-300 hover:scale-[1.01]"
+          className="card p-5 sm:p-8 transition-transform duration-300 hover:scale-[1.01]"
         >
           <div className="flex flex-col md:flex-row md:items-start md:justify-between mb-4">
             <div>
-              <h2 className="text-2xl font-semibold mb-2">Turkish version only. Loading English version...wait for it.</h2>
+              <h2 className="text-xl sm:text-2xl font-semibold mb-2">Turkish version only. Loading English version...wait for it.</h2>
             </div>
 
             <div className="flex flex-col space-y-1 mt-2 md:mt-0">

@@ -129,6 +129,7 @@ async function getRecentlyPlayed(accessToken: string) {
 function mapTrack(track: any, isPlaying = false) {
   return {
     isPlaying,
+    updatedAt: new Date().toISOString(),
     title: track?.name,
     artist: Array.isArray(track?.artists) ? track.artists.map((artist: any) => artist.name).join(', ') : undefined,
     album: track?.album?.name,

@@ -22,6 +22,29 @@ export type Project = {
 
 export const projects: Project[] = [
   {
+    id: 107,
+    slug: 'etymon',
+    label: 'Event Platform',
+    title: 'etyMON',
+    shortDescription:
+      'A mobile-first event platform with QR entry, randomized missions, and live leaderboards.',
+    description:
+      'etyMON brings organizers and participants together through interactive live events. Participants join with a QR code or event code, verify their email, and wait for the organizer to start the event before receiving a randomly assigned mission.\n\nOrganizers manage task pools, review submitted proof, and track scores and leaderboards. The platform combines a Next.js frontend with a FastAPI backend and PostgreSQL, with optional MON rewards through a Solidity contract on Monad.',
+    technologies: ['Next.js', 'TypeScript', 'FastAPI', 'PostgreSQL', 'Solidity', 'Monad'],
+    github: 'https://github.com/buraksal52/etyMON',
+    demo: 'https://etymon-burak11.vercel.app/',
+    image: '/projects/etymon.png',
+    year: '2026',
+    role: 'Project Contributor',
+    status: 'In Progress',
+    highlights: [
+      'QR and event code entry with email verification',
+      'Live waiting queue and randomized mission assignment',
+      'Organizer tools for task pools, proof review, and leaderboards',
+      'Optional on-chain MON rewards on Monad',
+    ],
+  },
+  {
     id: 106,
     slug: 'ghostellar',
     label: 'Stellar Payments',
@@ -216,6 +239,7 @@ export const projects: Project[] = [
 ]
 
 export const requiredProjectSlugs = [
+  'etymon',
   'ghostellar',
   'viral-things',
   'dead-blockchain-theory',

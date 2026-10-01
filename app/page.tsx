@@ -36,7 +36,7 @@ export default function Home() {
             transition={{ duration: 0.7 }}
           >
             <p className="uppercase tracking-[0.2em] text-xs text-[color:var(--muted)]">Software Engineer</p>
-            <h1 className="mt-4 max-w-4xl text-4xl font-display leading-[1.02] text-balance sm:text-5xl md:text-6xl lg:text-7xl">
+            <h1 className="mt-4 max-w-4xl text-[clamp(2rem,8.8vw,3rem)] font-display leading-[1.1] sm:leading-[1.02] text-balance sm:text-5xl md:text-6xl lg:text-7xl">
               You can call me Hale or Meowseziyy?
             </h1>
             <p className="mt-5 max-w-xl text-base leading-7 text-[color:var(--muted)] sm:mt-6 sm:text-lg sm:leading-8">
@@ -86,7 +86,7 @@ export default function Home() {
           <div className="card p-5 sm:p-6">
             <h2 className="text-2xl font-display">Latest Project</h2>
             <p className="mt-3 text-[color:var(--muted)]">{latestProject.description}</p>
-            <a href={latestProject.link} target="_blank" rel="noopener noreferrer" className="inline-flex mt-5 text-sm font-semibold link">
+            <a href={latestProject.link} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center mt-3 text-sm font-semibold link">
               {latestProject.title} →
             </a>
           </div>
@@ -97,7 +97,7 @@ export default function Home() {
               href={latestBlog.link}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex mt-5 text-sm font-semibold link"
+              className="inline-flex min-h-11 items-center mt-3 text-sm font-semibold link"
             >
               {latestBlog.title} →
             </a>

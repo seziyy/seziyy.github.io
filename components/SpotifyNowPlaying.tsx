@@ -19,6 +19,7 @@ interface SpotifyData {
   deviceIsActive?: boolean
   trackId?: string
   progressMs?: number
+  updatedAt?: string
   cachedAt?: number
 }
 
@@ -58,6 +59,8 @@ export default function SpotifyNowPlaying() {
         const cachedData = JSON.parse(cachedValue) as SpotifyData
 
         if (isTrackPayload(cachedData)) {
+          cachedData.isPlaying = false
+          setLastUpdatedAt(cachedData.updatedAt ? Date.parse(cachedData.updatedAt) : null)
           setData(cachedData)
           dataRef.current = cachedData
           setStatusMessage(cachedData.isPlaying ? null : 'Showing your last listened track.')
@@ -77,6 +80,9 @@ export default function SpotifyNowPlaying() {
         cachedAt: Date.now(),
       }
 
+      const updatedAt = spotifyData.updatedAt ? Date.parse(spotifyData.updatedAt) : null
+      setLastUpdatedAt(updatedAt !== null && Number.isFinite(updatedAt) ? updatedAt : null)
+      if (updatedAt && Date.now() - updatedAt > 30 * 60 * 1000) cachedTrack.isPlaying = false
       setData(cachedTrack)
       setStatusMessage(null)
       dataRef.current = cachedTrack
@@ -90,6 +96,11 @@ export default function SpotifyNowPlaying() {
 
     const keepLastTrack = (message: string) => {
       setStatusMessage(message)
+      if (dataRef.current) {
+        const lastTrack = { ...dataRef.current, isPlaying: false }
+        setData(lastTrack)
+        dataRef.current = lastTrack
+      }
 
       if (!dataRef.current) {
         const fallbackData = {
@@ -116,24 +127,21 @@ export default function SpotifyNowPlaying() {
         const response = await fetch(buildSpotifyApiUrl(), {
           cache: 'no-store',
         })
+        if (!response.ok) throw new Error(`Spotify request failed: ${response.status}`)
         const spotifyData = await response.json()
 
         if (isMounted) {
-          setLastUpdatedAt(Date.now())
-
           if (isTrackPayload(spotifyData) && !isErrorPayload(spotifyData)) {
             storeTrack(spotifyData)
           } else if (isErrorPayload(spotifyData)) {
             keepLastTrack(spotifyData.artist || spotifyData.title || 'Spotify connection failed')
           } else {
-            setStatusMessage(dataRef.current ? 'Showing your last listened track while Spotify is unavailable.' : null)
+            keepLastTrack('Showing your last listened track while Spotify is unavailable.')
           }
         }
       } catch (error) {
         console.error('Spotify data fetch error:', error)
         if (isMounted) {
-          setLastUpdatedAt(Date.now())
-
           if (dataRef.current) {
             keepLastTrack('Showing your last listened track while Spotify is unavailable.')
           } else {
@@ -189,7 +197,13 @@ export default function SpotifyNowPlaying() {
 
       {lastUpdatedAt && (
         <p className="mb-3 text-xs text-[color:var(--muted)]">
-          Last updated {new Date(lastUpdatedAt).toLocaleTimeString()}
+          Last updated {new Date(lastUpdatedAt).toLocaleString()}
+        </p>
+      )}
+
+      {lastUpdatedAt && Date.now() - lastUpdatedAt > 30 * 60 * 1000 && (
+        <p className="mb-3 text-xs text-[color:var(--muted)]">
+          Spotify sync is delayed. Showing the last saved track.
         </p>
       )}
 

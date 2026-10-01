@@ -114,3 +114,24 @@ main {
 ::-webkit-scrollbar-thumb:hover {
   background: #8f846f;
 }
+
+/* Allow narrow cards to wrap long titles and links without clipping. */
+.card {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+:where(a, button, input, textarea, select):focus-visible {
+  outline: 2px solid var(--accent-strong);
+  outline-offset: 4px;
+}
+
+@media (max-width: 639px) {
+  html {
+    scrollbar-gutter: auto;
+  }
+
+  .card {
+    box-shadow: 0 10px 28px rgba(21, 18, 15, 0.05);
+  }
+}

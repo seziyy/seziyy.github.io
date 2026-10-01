@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { motion } from 'framer-motion'
@@ -20,6 +20,30 @@ export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const pathname = usePathname()
+  const menuButton = useRef<HTMLButtonElement>(null)
+
+  useEffect(() => {
+    setIsMobileMenuOpen(false)
+  }, [pathname])
+
+  useEffect(() => {
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && menuButton.current?.getAttribute('aria-expanded') === 'true') {
+        setIsMobileMenuOpen(false)
+        menuButton.current?.focus()
+      }
+    }
+    const desktop = window.matchMedia('(min-width: 1024px)')
+    const closeOnDesktop = () => {
+      if (desktop.matches) setIsMobileMenuOpen(false)
+    }
+    document.addEventListener('keydown', closeOnEscape)
+    desktop.addEventListener('change', closeOnDesktop)
+    return () => {
+      document.removeEventListener('keydown', closeOnEscape)
+      desktop.removeEventListener('change', closeOnDesktop)
+    }
+  }, [])
 
   useEffect(() => {
     const handleScroll = () => {
@@ -34,7 +58,7 @@ export default function Navbar() {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? 'bg-[color:var(--paper)]/90 backdrop-blur-md shadow-sm' : 'bg-transparent'
+        isScrolled || isMobileMenuOpen ? 'bg-[color:var(--paper)]/90 backdrop-blur-md shadow-sm' : 'bg-[color:var(--paper)]/95 lg:bg-transparent'
       }`}
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
@@ -50,7 +74,7 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-2">
+          <div className="hidden lg:flex items-center space-x-2">
             {navItems.map((item) => (
               item.external ? (
                 <a
@@ -92,13 +116,15 @@ export default function Navbar() {
           </div>
 
           {/* Mobile menu button */}
-          <div className="md:hidden">
+          <div className="lg:hidden">
             <button
               type="button"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              ref={menuButton}
+              onClick={() => setIsMobileMenuOpen((open) => !open)}
               aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
               aria-expanded={isMobileMenuOpen}
-              className="p-2 text-[color:var(--muted)] transition-colors hover:text-[color:var(--ink)]"
+              aria-controls="mobile-navigation"
+              className="flex h-11 w-11 items-center justify-center rounded-xl border border-[color:var(--stroke)] text-[color:var(--muted)] transition-colors hover:text-[color:var(--ink)]"
             >
               {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -112,9 +138,10 @@ export default function Navbar() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
-          className="max-h-[calc(100dvh-4rem)] overflow-y-auto overscroll-contain bg-[color:var(--paper)]/95 backdrop-blur-md md:hidden"
+          id="mobile-navigation"
+          className="border-b border-[color:var(--stroke)] shadow-lg max-h-[calc(100dvh-4rem)] overflow-y-auto overscroll-contain bg-[color:var(--paper)]/95 backdrop-blur-md lg:hidden"
         >
-          <div className="space-y-1 px-4 pb-4 pt-2">
+          <div className="grid grid-cols-2 gap-2 px-4 pb-5 pt-2">
             {navItems.map((item) => (
               item.external ? (
                 <a
@@ -125,7 +152,7 @@ export default function Navbar() {
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <div
-                    className="block px-3 py-2 rounded-md text-base font-medium text-[color:var(--muted)] hover:text-[color:var(--ink)]"
+                    className="block px-3 py-3 rounded-xl text-base font-medium text-[color:var(--muted)] hover:text-[color:var(--ink)]"
                   >
                     {item.name}
                   </div>
@@ -137,7 +164,7 @@ export default function Navbar() {
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <div
-                    className={`block px-3 py-2 rounded-md text-base font-medium ${
+                    className={`block px-3 py-3 rounded-xl text-base font-medium ${
                       pathname === item.path
                         ? 'bg-[color:var(--accent-soft)] text-[color:var(--accent-strong)]'
                         : 'text-[color:var(--muted)] hover:text-[color:var(--ink)]'
@@ -150,7 +177,7 @@ export default function Navbar() {
             ))}
             <a
               href="/#contact"
-              className="block px-3 py-2 rounded-md text-base font-semibold bg-[color:var(--accent)] text-white"
+              className="col-span-2 block px-3 py-3 text-center rounded-xl text-base font-semibold bg-[color:var(--accent)] text-white"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Contact

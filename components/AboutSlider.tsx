@@ -87,7 +87,7 @@ export default function AboutSlider() {
   return (
     <div className="w-full max-w-2xl mx-auto">
       {/* Slider Container */}
-      <div className="relative flex min-h-[240px] flex-col justify-center rounded-lg border border-[color:var(--stroke)] bg-white/45 p-4 sm:p-5">
+      <div className="relative overflow-hidden flex min-h-[240px] flex-col justify-center rounded-lg border border-[color:var(--stroke)] bg-white/45 p-4 sm:p-5">
         <AnimatePresence mode="wait">
           <motion.div
             key={current}
@@ -132,7 +132,7 @@ export default function AboutSlider() {
             whileTap={{ scale: 0.95 }}
             onClick={goPrev}
             aria-label="Previous bio slide"
-            className="p-2 rounded-lg border border-[color:var(--stroke)] text-[color:var(--muted)] hover:text-[color:var(--ink)] transition-colors"
+            className="flex h-11 w-11 items-center justify-center rounded-lg border border-[color:var(--stroke)] text-[color:var(--muted)] hover:text-[color:var(--ink)] transition-colors"
           >
             <ChevronLeft size={20} />
           </motion.button>
@@ -142,14 +142,14 @@ export default function AboutSlider() {
             whileTap={{ scale: 0.95 }}
             onClick={goNext}
             aria-label="Next bio slide"
-            className="p-2 rounded-lg border border-[color:var(--stroke)] text-[color:var(--muted)] hover:text-[color:var(--ink)] transition-colors"
+            className="flex h-11 w-11 items-center justify-center rounded-lg border border-[color:var(--stroke)] text-[color:var(--muted)] hover:text-[color:var(--ink)] transition-colors"
           >
             <ChevronRight size={20} />
           </motion.button>
         </div>
 
         {/* Dot Indicators */}
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center">
           {bioSlides.map((_, idx) => (
             <motion.button
               key={idx}
@@ -159,12 +159,12 @@ export default function AboutSlider() {
               onClick={() => goToSlide(idx)}
               aria-label={`Show ${languageLabels[bioSlides[idx].lang] ?? bioSlides[idx].lang} bio slide`}
               aria-current={idx === current ? 'true' : undefined}
-              className={`w-2 h-2 rounded-full transition-all ${
-                idx === current
-                  ? 'bg-[color:var(--accent)] w-6'
-                  : 'bg-[color:var(--stroke)] hover:bg-[color:var(--accent-soft)]'
-              }`}
-            />
+              className="flex h-11 w-11 items-center justify-center rounded-lg"
+            >
+              <span className={`h-2 rounded-full transition-all ${
+                idx === current ? 'w-6 bg-[color:var(--accent)]' : 'w-2 bg-[color:var(--stroke)]'
+              }`} />
+            </motion.button>
           ))}
         </div>
 

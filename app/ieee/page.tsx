@@ -121,15 +121,15 @@ export default function IEEEPage() {
   const [selectedImage, setSelectedImage] = useState<{ src: string; alt: string } | null>(null)
 
   return (
-    <div className="min-h-screen pt-28 px-6 pb-20">
+    <div className="min-h-screen px-4 pb-12 pt-24 sm:px-6 sm:pb-20 sm:pt-28">
       <div className="max-w-5xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-12"
+          className="mb-8 sm:mb-12"
         >
           <p className="uppercase tracking-[0.2em] text-xs text-[color:var(--muted)]">Experience</p>
-          <h1 className="text-5xl font-display mt-4 mb-4">IEEE Activities</h1>
+          <h1 className="text-4xl leading-tight sm:text-5xl font-display mt-3 mb-4">IEEE Activities</h1>
           <p className="text-[color:var(--muted)] text-lg">
             Events and technical sessions I joined within IEEE.
           </p>
@@ -144,11 +144,11 @@ export default function IEEEPage() {
               transition={{ delay: index * 0.06 }}
               whileHover={{ scale: 1.01 }}
               onClick={() => setExpandedId((current) => (current === event.id ? null : event.id))}
-              className="card p-6 cursor-pointer"
+              className="card p-5 sm:p-6 cursor-pointer"
             >
               <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
                 <div>
-                  <h2 className="text-2xl font-semibold mb-2">{event.title}</h2>
+                  <h2 className="text-xl sm:text-2xl font-semibold mb-2">{event.title}</h2>
                   <span className="inline-flex px-3 py-1 bg-[color:var(--accent-soft)] text-[color:var(--accent-strong)] text-sm rounded-full">
                     {event.track}
                   </span>

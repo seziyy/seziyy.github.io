@@ -331,15 +331,15 @@ export default function GalleryPage() {
   const selectedMediaType = selectedItem ? selectedItem.mediaType ?? getMediaTypeFromPath(selectedItem.image) : 'image'
 
   return (
-    <div className="min-h-screen pt-28 px-6 pb-20">
+    <div className="min-h-screen px-4 pb-12 pt-24 sm:px-6 sm:pb-20 sm:pt-28">
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-12"
+          className="mb-8 sm:mb-12"
         >
           <p className="uppercase tracking-[0.2em] text-xs text-[color:var(--muted)]">Gallery</p>
-          <h1 className="text-5xl font-display mt-4 mb-4">
+          <h1 className="text-4xl leading-tight sm:text-5xl font-display mt-3 mb-4">
             Gallery
           </h1>
           <p className="text-[color:var(--muted)] text-lg mb-8">
@@ -347,14 +347,14 @@ export default function GalleryPage() {
           </p>
           
           {/* Category Filters */}
-          <div className="flex flex-wrap gap-3">
+          <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-3">
             {categories.map((category) => (
               <motion.button
                 key={category}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setActiveCategory(category)}
-                className={`px-6 py-2 rounded-full font-medium transition-all ${
+                className={`min-h-11 px-3 py-2 text-sm sm:px-6 sm:text-base rounded-full font-medium transition-all ${
                   activeCategory === category
                     ? 'bg-[color:var(--accent)] text-white shadow-lg'
                     : 'bg-white text-[color:var(--muted)] hover:text-[color:var(--ink)] border border-[color:var(--stroke)]'
@@ -437,7 +437,7 @@ export default function GalleryPage() {
                   </div>
 
                   {/* Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex items-end p-6">
                     <div>
                       <p className="text-white font-semibold text-lg mb-1">{item.title}</p>
                       <span className="px-3 py-1 bg-white/20 text-white text-xs rounded-full border border-white/30">
@@ -470,7 +470,7 @@ export default function GalleryPage() {
                 className="relative max-w-5xl w-full"
                 onClick={(event) => event.stopPropagation()}
               >
-                <div className="relative h-[78vh] max-h-[820px] bg-[color:var(--accent-soft)] rounded-2xl flex items-center justify-center overflow-hidden">
+                <div className="relative h-[70svh] sm:h-[78vh] max-h-[820px] bg-[color:var(--accent-soft)] rounded-2xl flex items-center justify-center overflow-hidden">
                   {selectedMediaType === 'video' ? (
                     <video
                       src={toImageSrc(selectedItem.image)}

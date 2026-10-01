@@ -24,14 +24,14 @@ type Experience = {
 const experiences: Experience[] = [
   {
     id: 1,
-    title: 'Blockchain-Project Engineering Intern',
+    title: 'Community Manager',
     company: 'BuilderMare',
     location: 'Ankara, Turkiye · Hybrid',
-    period: 'December 2025 · now',
-    summary: 'I contributed to frontend tasks, gaining hands-on experience with blockchain technologies and project engineering.',
+    period: 'September 2026 · now',
+    summary: 'Promoted to Community Manager in September 2026 after working as a Blockchain-Project Engineering Intern at BuilderMare.',
     details:
-      'I worked in a product-focused environment where I turned design requirements into reusable UI blocks, improved component consistency, and contributed to feature planning sessions. This role strengthened my practical knowledge of modern web workflows and blockchain project operations.',
-    technologies: ['C#', '.NET', 'Teamwork', 'MCP ', 'API Development'],
+      'I joined BuilderMare as a Blockchain-Project Engineering Intern in December 2025 and held that role until August 2026. During my internship, I turned design requirements into reusable UI blocks, improved component consistency, and contributed to feature planning sessions, gaining hands-on experience with blockchain technologies and project engineering. In September 2026, I was promoted to Community Manager.',
+    technologies: ['Rust', 'Project Engineering', 'Blockchain', 'AI', 'Prompt Engineering'],
     images: [
       { src: '/experiences/buildermare/aaa3.jpeg', alt: 'BuilderMare project workspace' },
       { src: '/experiences/buildermare/aa2.jpeg', alt: 'BuilderMare team collaboration' },
@@ -116,15 +116,15 @@ export default function ExperiencesPage() {
   }
 
   return (
-    <div className="min-h-screen pt-28 px-6 pb-20">
+    <div className="min-h-screen px-4 pb-12 pt-24 sm:px-6 sm:pb-20 sm:pt-28">
       <div className="max-w-5xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-12"
+          className="mb-8 sm:mb-12"
         >
           <p className="uppercase tracking-[0.2em] text-xs text-[color:var(--muted)]">Experience</p>
-          <h1 className="text-5xl font-display mt-4 mb-4">
+          <h1 className="text-4xl leading-tight sm:text-5xl font-display mt-3 mb-4">
             My Experience
           </h1>
           <p className="text-[color:var(--muted)] text-lg">
@@ -148,11 +148,11 @@ export default function ExperiencesPage() {
               transition={{ delay: index * 0.1 }}
               whileHover={{ scale: 1.02 }}
               onClick={() => setExpandedId((current) => (current === exp.id ? null : exp.id))}
-              className="card p-8 cursor-pointer"
+              className="card p-5 sm:p-8 cursor-pointer"
             >
               <div className="flex flex-col md:flex-row md:items-start md:justify-between mb-4">
                 <div>
-                  <h2 className="text-2xl font-semibold mb-2">{exp.title}</h2>
+                  <h2 className="text-xl sm:text-2xl font-semibold mb-2">{exp.title}</h2>
                   <div className="flex items-center space-x-2 text-[color:var(--accent-strong)] mb-2">
                     <Briefcase size={18} />
                     <span className="font-medium">{exp.company}</span>

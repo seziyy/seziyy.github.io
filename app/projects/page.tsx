@@ -49,15 +49,15 @@ export default function ProjectsPage() {
   }, [])
 
   return (
-    <div className="min-h-screen pt-28 px-6 pb-20">
+    <div className="min-h-screen px-4 pb-12 pt-24 sm:px-6 sm:pb-20 sm:pt-28">
       <div className="max-w-6xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-12"
+          className="mb-8 sm:mb-12"
         >
           <p className="uppercase tracking-[0.2em] text-xs text-[color:var(--muted)]">Projects</p>
-          <h1 className="text-5xl font-display mt-4 mb-4">
+          <h1 className="text-4xl leading-tight sm:text-5xl font-display mt-3 mb-4">
             My Projects
           </h1>
           <p className="text-[color:var(--muted)] text-lg">
@@ -65,7 +65,7 @@ export default function ProjectsPage() {
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-2 gap-8">
+        <div className="grid md:grid-cols-2 gap-5 sm:gap-8">
           {projects.map((project, index: number) => (
             <motion.div
               key={project.id}
@@ -93,7 +93,7 @@ export default function ProjectsPage() {
                 />
               </div>
 
-              <div className="p-6">
+              <div className="p-5 sm:p-6">
                 <p className="uppercase tracking-[0.2em] text-[11px] text-[color:var(--muted)] mb-2">
                   {project.label}
                 </p>
@@ -111,7 +111,7 @@ export default function ProjectsPage() {
                   ))}
                 </div>
 
-                <div className="flex items-center justify-between gap-3">
+                <div className="flex flex-wrap items-center justify-between gap-3">
                   <div className="flex items-center space-x-4">
                     {project.github ? (
                       <a
@@ -119,7 +119,7 @@ export default function ProjectsPage() {
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={(event) => event.stopPropagation()}
-                        className="flex items-center space-x-2 text-[color:var(--muted)] hover:text-[color:var(--ink)] transition-colors"
+                        className="flex min-h-11 items-center space-x-2 text-[color:var(--muted)] hover:text-[color:var(--ink)] transition-colors"
                       >
                         <Github size={20} />
                         <span className="text-sm">GitHub</span>
@@ -131,7 +131,7 @@ export default function ProjectsPage() {
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={(event) => event.stopPropagation()}
-                        className="flex items-center space-x-2 text-[color:var(--accent-strong)] hover:text-[color:var(--accent)] transition-colors"
+                        className="flex min-h-11 items-center space-x-2 text-[color:var(--accent-strong)] hover:text-[color:var(--accent)] transition-colors"
                       >
                         <ExternalLink size={20} />
                         <span className="text-sm">Demo</span>

@@ -30,16 +30,16 @@ export default function RootLayout({
           <main className="min-h-screen">
             {children}
           </main>
-          <footer className="border-t border-[color:var(--stroke)] mt-24">
-            <div className="max-w-6xl mx-auto px-6 py-10 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <footer className="border-t border-[color:var(--stroke)] mt-8 sm:mt-24">
+            <div className="max-w-6xl mx-auto px-4 py-8 sm:px-6 sm:py-10 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div>
                 <p className="text-sm text-[color:var(--muted)]">© 2026 Hale Sezin Özorman</p>
                 <p className="text-xs text-[color:var(--muted)]">Software engineer and product builder.</p>
               </div>
               <div className="flex flex-wrap items-center gap-4 text-sm">
-                <a className="link" href="https://github.com/seziyy" target="_blank" rel="noopener noreferrer">GitHub</a>
-                <a className="link" href="https://www.linkedin.com/in/hale-sezin-%C3%B6-1b5aa9254/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
-                <a className="link" href="mailto:halesezin@gmail.com">Email</a>
+                <a className="link inline-flex min-h-11 items-center" href="https://github.com/seziyy" target="_blank" rel="noopener noreferrer">GitHub</a>
+                <a className="link inline-flex min-h-11 items-center" href="https://www.linkedin.com/in/hale-sezin-%C3%B6-1b5aa9254/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+                <a className="link inline-flex min-h-11 items-center" href="mailto:halesezin@gmail.com">Email</a>
               </div>
             </div>
           </footer>
