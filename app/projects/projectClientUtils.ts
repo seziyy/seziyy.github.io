@@ -3,7 +3,7 @@ import type { Project } from '@/app/projects/projectsData'
 export const PROJECTS_STORAGE_KEY = 'admin-projects'
 
 // Retired built-in projects must also be removed from saved admin snapshots.
-const retiredProjectSlugs = new Set(['freelandser-freelance-platform'])
+const retiredProjectSlugs = new Set(['freelandser-freelance-platform', 'wallet-guardai'])
 
 export const normalizeImagePath = (value: string) => {
   const normalized = value.trim().replace(/\\/g, '/').replace(/^\/?public\//i, '/')
