@@ -54,7 +54,12 @@ const normalizeImagePath = (image: string) => {
 }
 
 const remapGalleryImagePath = (image: string) => {
-  const normalized = normalizeImagePath(image).toLowerCase()
+  const renamedImage = normalizeImagePath(image).replace(/whatsapp image/gi, 'Image')
+  const normalized = renamedImage.toLowerCase()
+
+  if (normalized === '/gallery/moments/image 2026-04-09 at 18.32.57.jpeg') {
+    return '/gallery/notes/Image 2026-04-09 at 18.32.57.jpeg'
+  }
 
   if (
     normalized === '/gallery/uiux-1.jpg' ||
@@ -64,7 +69,7 @@ const remapGalleryImagePath = (image: string) => {
     return '/gallery/designs/kripto.png'
   }
 
-  return image
+  return renamedImage
 }
 
 const getCategoryFromImagePath = (imagePath: string): Exclude<Category, 'All'> | null => {
@@ -90,7 +95,7 @@ type FolderFileEntry = {
 }
 
 const getFileTitle = (fileName: string) => {
-  return fileName.replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' ').trim()
+  return fileName.replace(/whatsapp image/gi, 'Image').replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' ').trim()
 }
 
 const getMediaTypeFromPath = (path?: string): MediaType => {
@@ -114,12 +119,25 @@ const getGallerySortValue = (item: GalleryItem) => {
 }
 
 const sortGalleryItemsNewestFirst = (items: GalleryItem[]) => {
-  return [...items].sort((a, b) => {
+  const sortedItems = [...items].sort((a, b) => {
     const sortDifference = getGallerySortValue(b) - getGallerySortValue(a)
     if (sortDifference !== 0) return sortDifference
 
     return normalizeImagePath(b.image).localeCompare(normalizeImagePath(a.image), 'tr')
   })
+
+  const moments = sortedItems.filter((item) => resolveCategory(item, item.image) === 'Moments')
+  const photoIndex = moments.findIndex((item) =>
+    normalizeImagePath(item.image) === '/gallery/moments/daisies-and-note.jpeg'
+  )
+  if (photoIndex === -1) return sortedItems
+
+  const [photo] = moments.splice(photoIndex, 1)
+  moments.splice(Math.floor(moments.length / 2), 0, photo)
+  let momentIndex = 0
+  return sortedItems.map((item) =>
+    resolveCategory(item, item.image) === 'Moments' ? moments[momentIndex++] : item
+  )
 }
 
 const buildFolderGalleryItems = (
@@ -155,6 +173,10 @@ const buildFolderGalleryItems = (
 }
 
 const designGalleryItems: GalleryItem[] = [
+  { id: 31, title: 'Pixel Art Podcast', category: 'Designs', image: '/gallery/designs/pixel-art-podcast.png' },
+  { id: 31, title: 'etyMON Task Wheel', category: 'Designs', image: '/gallery/designs/etyMON-task-wheel.png' },
+  { id: 29, title: 'Painting Together', category: 'Designs', image: '/gallery/designs/painting-together.jpeg' },
+  { id: 28, title: 'etyMON', category: 'Designs', image: '/gallery/designs/etyMON.jpeg' },
   { id: 21, title: 'Untitled Design', category: 'Designs', image: '/gallery/designs/Untitled.png' },
   { id: 22, title: 'Untitled Design 2', category: 'Designs', image: '/gallery/designs/Untitled (6).png' },
   { id: 23, title: '8 Mart', category: 'Designs', image: '/gallery/designs/8 Mart.png' },
@@ -165,6 +187,13 @@ const designGalleryItems: GalleryItem[] = [
 ]
 
 const removedGalleryImages = new Set([
+  '/gallery/notes/dd.jpeg',
+  '/gallery/moments/moment-46-92d98742.webp',
+  '/gallery/moments/Image 2026-04-09 at 18.55.56.jpeg',
+  '/gallery/moments/1775640754955-WhatsApp Görsel 2025-08-26 saat 11.43.13_605f99e3.jpg',
+  '/gallery/moments/1775640691428-_DSC0587.JPG',
+  '/gallery/moments/Image 2026-04-09 at 17.59.21.jpeg',
+  '/gallery/moments/Image 2026-04-09 at 18.02.36.jpeg',
   '/gallery/designs/kripto.png',
   '/gallery/designs/kriptooloji.png',
   '/gallery/designs/kriptoloji.png',
@@ -178,6 +207,19 @@ const rotatedImagePaths = new Set([
 ])
 
 const defaultGalleryItems: GalleryItem[] = [
+  { id: 40, title: 'Floral Hat Portrait', category: 'Drawings', image: '/gallery/drawings/floral-hat-portrait.jpeg' },
+  { id: 41, title: 'Earn Popular Products Sketch', category: 'Drawings', image: '/gallery/drawings/earn-popular-products-sketch.jpeg' },
+  { id: 42, title: 'Paper Laptop Facebook Prototype', category: 'Drawings', image: '/gallery/drawings/paper-laptop-facebook-prototype.jpeg' },
+  { id: 43, title: 'Learn Blockchain Sketch', category: 'Drawings', image: '/gallery/drawings/learn-blockchain-sketch.jpeg' },
+  { id: 44, title: 'Joker Pencil Portrait', category: 'Drawings', image: '/gallery/drawings/joker-pencil-portrait.jpeg' },
+  { id: 45, title: 'Dylan Sprouse Pencil Portrait', category: 'Drawings', image: '/gallery/drawings/dylan-sprouse-pencil-portrait.jpeg' },
+  { id: 46, title: 'Nft Gallery Sketch', category: 'Drawings', image: '/gallery/drawings/nft-gallery-sketch.jpeg' },
+  { id: 47, title: 'Watercolor Girl And Cat', category: 'Drawings', image: '/gallery/drawings/watercolor-girl-and-cat.jpeg' },
+  { id: 48, title: 'Bearded Man Pencil Portrait', category: 'Drawings', image: '/gallery/drawings/bearded-man-pencil-portrait.jpeg' },
+  { id: 49, title: 'Earn Fantasy Sketch', category: 'Drawings', image: '/gallery/drawings/earn-fantasy-sketch.jpeg' },
+  { id: 50, title: 'Pencil Portrait Study', category: 'Drawings', image: '/gallery/drawings/pencil-portrait-study.jpeg' },
+  { id: 51, title: 'Face Pencil Study 2019', category: 'Drawings', image: '/gallery/drawings/face-pencil-study-2019.jpeg' },
+  { id: 52, title: 'Dive Fantasy Sketch', category: 'Drawings', image: '/gallery/drawings/dive-fantasy-sketch.jpeg' },
   { id: 11, title: 'My father drew me.', category: 'Drawing', image: '/gallery/drawings/sezin.jpg' },
   { id: 12, title: 'I drew this when I was 6.', category: 'Drawing', image: '/gallery/drawings/sezin3.jpg' },
   { id: 13, title: 'I drew this when I was 3.', category: 'Drawing', image: '/gallery/drawings/sezin6.jpg' },
@@ -232,7 +274,7 @@ const mergeGalleryItems = (baseItems: GalleryItem[], storedItems: GalleryItem[])
       ...item,
       image,
       category,
-      title: category === 'Moments' ? 'memories last forever' : item.title,
+      title: category === 'Moments' ? 'memories last forever' : item.title.replace(/whatsapp image/gi, 'Image'),
       mediaType,
     })
     imageKeys.set(image, key)
@@ -353,7 +395,11 @@ export default function GalleryPage() {
                 key={category}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => setActiveCategory(category)}
+                onClick={() => {
+                  setSelectedImage(null)
+                  setActiveCategory(category)
+                }}
+                aria-pressed={activeCategory === category}
                 className={`min-h-11 px-3 py-2 text-sm sm:px-6 sm:text-base rounded-full font-medium transition-all ${
                   activeCategory === category
                     ? 'bg-[color:var(--accent)] text-white shadow-lg'
@@ -368,6 +414,7 @@ export default function GalleryPage() {
 
         {/* Gallery Grid */}
         <motion.div 
+          key={activeCategory}
           layout
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
         >
@@ -393,7 +440,7 @@ export default function GalleryPage() {
                   const mediaType = item.mediaType ?? getMediaTypeFromPath(item.image)
                   return (
                 <motion.div
-                  key={item.id}
+                  key={item.image}
                   layout
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
